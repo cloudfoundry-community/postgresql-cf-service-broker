@@ -1,0 +1,4 @@
+---
+applications:
+  - name: s3servicebroker
+    buildpack: java_buildpack

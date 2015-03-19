@@ -22,7 +22,24 @@ mvn package && AWS_ACCESS_KEY=secret AWS_SECRET_KEY=secret java -jar target/s3-c
 
 ### In Cloud Foundry
 
-TODO: example
+Build the package with `mvn package` then push it out:
+```
+cf push BROKERNAME -p target/s3-cf-service-broker-2.3.0-SNAPSHOT.jar --no-start
+```
+
+Export the following environment variables:
+
+```
+cf set-env BROKERNAME AWS_ACCESS_KEY "MYAWSKEY"
+cf set-env BROKERNAME AWS_SECRET_KEY "MYAWSSECRET"
+cf set-env BROKERNAME JAVA_OPTS "-Dsecurity.user.password=mysecret"
+```
+
+Start the app:
+```
+cf start BROKERNAME
+```
+
 
 ## Using the services in your application
 
@@ -96,3 +113,4 @@ The ability to apply additional custom tags is in the works.
 ## Registering a Broker with the Cloud Controller
 
 See [Managing Service Brokers](http://docs.cloudfoundry.org/services/managing-service-brokers.html).
+
