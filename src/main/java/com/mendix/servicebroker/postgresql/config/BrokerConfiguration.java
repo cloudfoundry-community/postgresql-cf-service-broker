@@ -39,8 +39,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 @Configuration
 @ComponentScan(basePackages = "com.mendix.servicebroker", excludeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = BrokerApiVersionConfig.class) })
 public class BrokerConfiguration {
-
-
     @Value("${MASTER_JDBC_URL}")
     private String jdbcUrl;
 
@@ -52,7 +50,6 @@ public class BrokerConfiguration {
 			return null;
 		}
     }
-
 
     @Bean
     public Catalog catalog() throws JsonParseException, JsonMappingException, IOException {

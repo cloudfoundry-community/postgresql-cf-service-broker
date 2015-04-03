@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PostgreSQLServiceInstanceBindingService implements ServiceInstanceBindingService {
-
     private final Database db;
 
     @Autowired
@@ -51,5 +50,4 @@ public class PostgreSQLServiceInstanceBindingService implements ServiceInstanceB
     public ServiceInstanceBinding getServiceInstanceBinding(String id) {
         throw new IllegalStateException("Not implemented");
     }
-
 }

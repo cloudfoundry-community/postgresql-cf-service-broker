@@ -29,7 +29,6 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
-
 @Component
 public class Database {
 
