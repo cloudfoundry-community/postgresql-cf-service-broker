@@ -1,4 +1,4 @@
 ---
 applications:
-  - name: s3servicebroker
+  - name: postgresqlservicebroker
     buildpack: java_buildpack
