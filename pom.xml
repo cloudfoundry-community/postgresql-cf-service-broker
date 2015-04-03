@@ -6,20 +6,30 @@
 		<version>1.1.4.RELEASE</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.cloudfoundry.broker</groupId>
-	<artifactId>s3-cf-service-broker</artifactId>
+	<groupId>net.mendix.broker</groupId>
+	<artifactId>postgresql-cf-service-broker</artifactId>
 	<version>2.3.0-SNAPSHOT</version>
 
 	<properties>
-		<start-class>org.cloudfoundry.community.servicebroker.s3.config.Application</start-class>
-		
+		<start-class>com.mendix.servicebroker.postgresql.config.Application</start-class>
 		<spring-boot-cf-service-broker.version>2.3.3</spring-boot-cf-service-broker.version>
 	</properties>
 
 	<dependencies>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.4-1200-jdbc41</version>
+        </dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -53,7 +63,6 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
 			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

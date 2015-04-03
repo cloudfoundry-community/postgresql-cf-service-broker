@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.cloudfoundry.community.servicebroker.s3.config;
+package com.mendix.servicebroker.postgresql.config;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
-/**
- * @author David Ehringer
- */
 @ComponentScan
 @EnableAutoConfiguration
 public class Application {
