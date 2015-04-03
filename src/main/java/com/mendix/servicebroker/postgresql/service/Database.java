@@ -33,7 +33,7 @@ import com.google.common.collect.Lists;
 @Component
 public class Database {
 
-	private static final Logger logger = LoggerFactory.getLogger(Database.class);
+    private static final Logger logger = LoggerFactory.getLogger(Database.class);
     private final Connection conn;
 
     @Autowired
@@ -44,53 +44,53 @@ public class Database {
     public void createDatabaseForInstance(String instanceId) throws SQLException {
         PreparedStatement createDatabase = this.conn.prepareStatement("CREATE DATABASE ?");
         createDatabase.setString(1, instanceId);
-        
+
         PreparedStatement makePrivate = this.conn.prepareStatement("REVOKE all on database ? from public");
         makePrivate.setString(1, instanceId);
 
         try {
-        	this.conn.setAutoCommit(false);
-        	createDatabase.executeQuery();
-        	makePrivate.executeQuery();
-        	this.conn.commit();
+            this.conn.setAutoCommit(false);
+            createDatabase.executeQuery();
+            makePrivate.executeQuery();
+            this.conn.commit();
         } catch (SQLException e) {
-        	this.conn.rollback();
-        	logger.warn(e.toString());
+            this.conn.rollback();
+            logger.warn(e.toString());
         } finally {
-        	this.conn.setAutoCommit(true);
+            this.conn.setAutoCommit(true);
         }
     }
 
     public void deleteDatabase(String instanceId) throws SQLException {
         PreparedStatement deleteDatabase = this.conn.prepareStatement("DROP DATABASE ?");
         deleteDatabase.setString(1, instanceId);
-        
+
         PreparedStatement deleteRole = this.conn.prepareStatement("DROP ROLE ?");
         deleteRole.setString(1, instanceId);
 
         try {
-        	this.conn.setAutoCommit(false);
-        	deleteDatabase.executeQuery();
-        	this.conn.commit();
+            this.conn.setAutoCommit(false);
+            deleteDatabase.executeQuery();
+            this.conn.commit();
         } catch (SQLException e) {
-        	this.conn.rollback();
+            this.conn.rollback();
         } finally {
-        	this.conn.setAutoCommit(true);
+            this.conn.setAutoCommit(true);
         }
     }
 
     public ServiceInstance findServiceInstance(String instanceId) throws SQLException {
-    	PreparedStatement findDatabase = this.conn.prepareStatement("SELECT datname FROM pg_database WHERE datname = ?");
-    	ResultSet result = null;
-    	try {
-    		result = findDatabase.executeQuery();
-    		if (result.next())
-    			return null;
-    	} catch (SQLException e) {
-    	} finally {
-    		if (result != null)
-    			result.close();
-    	}
+        PreparedStatement findDatabase = this.conn.prepareStatement("SELECT datname FROM pg_database WHERE datname = ?");
+        ResultSet result = null;
+        try {
+            result = findDatabase.executeQuery();
+            if (result.next())
+                return null;
+        } catch (SQLException e) {
+        } finally {
+            if (result != null)
+                result.close();
+        }
         return null;
     }
 

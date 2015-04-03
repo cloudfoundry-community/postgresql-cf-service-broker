@@ -39,10 +39,10 @@ public class PostgreSQLServiceInstanceService implements ServiceInstanceService 
     public ServiceInstance createServiceInstance(ServiceDefinition service, String serviceInstanceId, String planId,
             String organizationGuid, String spaceGuid) throws ServiceInstanceExistsException, ServiceBrokerException {
         try {
-			db.createDatabaseForInstance(serviceInstanceId);
-		} catch (SQLException e) {
-			throw new ServiceBrokerException(e.toString());
-		}
+            db.createDatabaseForInstance(serviceInstanceId);
+        } catch (SQLException e) {
+            throw new ServiceBrokerException(e.toString());
+        }
         return new ServiceInstance(serviceInstanceId, service.getId(), planId, organizationGuid, spaceGuid, null);
     }
 
@@ -51,10 +51,10 @@ public class PostgreSQLServiceInstanceService implements ServiceInstanceService 
             throws ServiceBrokerException {
         ServiceInstance instance = getServiceInstance(id);
         try {
-			db.deleteDatabase(serviceId);
-		} catch (SQLException e) {
-			throw new ServiceBrokerException(e.toString());
-		}
+            db.deleteDatabase(serviceId);
+        } catch (SQLException e) {
+            throw new ServiceBrokerException(e.toString());
+        }
         return instance;
     }
 
@@ -66,10 +66,10 @@ public class PostgreSQLServiceInstanceService implements ServiceInstanceService 
     @Override
     public ServiceInstance getServiceInstance(String id) {
         try {
-			return db.findServiceInstance(id);
-		} catch (SQLException e) {
-			return null;
-		}
+            return db.findServiceInstance(id);
+        } catch (SQLException e) {
+            return null;
+        }
     }
 
 }
