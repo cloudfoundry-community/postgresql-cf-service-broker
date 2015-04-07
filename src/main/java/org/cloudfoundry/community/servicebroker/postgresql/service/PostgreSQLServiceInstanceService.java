@@ -29,10 +29,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class PostgreSQLServiceInstanceService implements ServiceInstanceService {
     private final Database db;
+    private final Role role;
 
     @Autowired
-    public PostgreSQLServiceInstanceService(Database db) {
+    public PostgreSQLServiceInstanceService(Database db, Role role) {
         this.db = db;
+        this.role = role;
     }
 
     @Override
@@ -40,6 +42,7 @@ public class PostgreSQLServiceInstanceService implements ServiceInstanceService 
             String organizationGuid, String spaceGuid) throws ServiceInstanceExistsException, ServiceBrokerException {
         try {
             db.createDatabaseForInstance(serviceInstanceId);
+            role.createRoleForInstance(serviceInstanceId, "PASSWORD");
         } catch (SQLException e) {
             throw new ServiceBrokerException(e.getMessage());
         }
@@ -53,6 +56,7 @@ public class PostgreSQLServiceInstanceService implements ServiceInstanceService 
 
         try {
             db.deleteDatabase(id);
+            role.deleteRole(id);
         } catch (SQLException e) {
             throw new ServiceBrokerException(e.toString());
         }

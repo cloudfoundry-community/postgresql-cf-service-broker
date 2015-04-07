@@ -19,18 +19,19 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
+import java.sql.Statement;
+import java.util.UUID;
 
 import org.cloudfoundry.community.servicebroker.model.ServiceInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Lists;
 
 
 @Component
 public class Role {
-
+    private static final Logger logger = LoggerFactory.getLogger(Role.class);
     private final Connection conn;
 
     @Autowired
@@ -38,75 +39,57 @@ public class Role {
         this.conn = conn;
     }
 
-    public void createDatabaseForInstance(String instanceId, String password) throws SQLException {
-        PreparedStatement createDatabase = this.conn.prepareStatement("CREATE DATABASE ?");
-        createDatabase.setString(1, instanceId);
-
-        PreparedStatement makePrivate = this.conn.prepareStatement("REVOKE all on database ? from public");
-        makePrivate.setString(1, instanceId);
-
-        PreparedStatement createRole = this.conn.prepareStatement("CREATE ROLE ? LOGIN PASSWORD ?");
-        createRole.setString(1, instanceId);
-        createRole.setString(2, password);
-
-        PreparedStatement grantRole = this.conn.prepareStatement("GRANT ALL ON DATABASE ? TO ?");
-        grantRole.setString(1, instanceId);
-        grantRole.setString(2, instanceId);
+    public void createRoleForInstance(String instanceId, String password) throws SQLException {
+        Statement createRole = this.conn.createStatement();
 
         try {
-            this.conn.setAutoCommit(false);
-            createDatabase.executeQuery();
-            makePrivate.executeQuery();
-            createRole.executeQuery();
-            grantRole.executeQuery();
-            this.conn.commit();
+            createRole.execute("CREATE ROLE \"" + instanceId + "\" LOGIN PASSWORD '" + password + "'");
         } catch (SQLException e) {
-            this.conn.rollback();
-        } finally {
-            this.conn.setAutoCommit(true);
+            logger.warn(e.getMessage());
         }
     }
 
-    public void deleteDatabase(String instanceId) throws SQLException {
-        PreparedStatement deleteDatabase = this.conn.prepareStatement("DROP DATABASE ?");
-        deleteDatabase.setString(1, instanceId);
-
-        PreparedStatement deleteRole = this.conn.prepareStatement("DROP ROLE ?");
-        deleteRole.setString(1, instanceId);
+    public void deleteRole(String instanceId) throws SQLException {
+        Statement deleteRole = this.conn.createStatement();
 
         try {
-            this.conn.setAutoCommit(false);
-            deleteRole.executeQuery();
-            deleteDatabase.executeQuery();
-            this.conn.commit();
+            deleteRole.execute("DROP ROLE \"" + instanceId + "\"");
         } catch (SQLException e) {
-            this.conn.rollback();
-        } finally {
-            this.conn.setAutoCommit(true);
+            logger.warn(e.getMessage());
         }
     }
 
-    public ServiceInstance findServiceInstance(String instanceId) throws SQLException {
-        PreparedStatement findDatabase = this.conn.prepareStatement("SELECT datname FROM pg_database WHERE datname = ?");
-        ResultSet result = null;
+    public void bindRoleToDatabase(String dbInstanceId, String roleInstanceId) throws SQLException {
+        checkValidUUID(dbInstanceId);
+        checkValidUUID(roleInstanceId);
+
+        Statement grantRole = this.conn.createStatement();
+
         try {
-            result = findDatabase.executeQuery();
-            if (result.next())
-                return null;
+            grantRole.execute("GRANT ALL ON DATABASE \"" + dbInstanceId + "\" TO \"" + roleInstanceId + "\"");
         } catch (SQLException e) {
-        } finally {
-            if (result != null)
-                result.close();
+            logger.warn(e.getMessage());
         }
-        return null;
     }
 
-    public List<ServiceInstance> getAllServiceInstances() {
-        List<ServiceInstance> serviceInstances = Lists.newArrayList();
-        return serviceInstances;
+    public void unBindRoleFromDatabase(String dbInstanceId, String roleInstanceId) throws SQLException{
+        checkValidUUID(dbInstanceId);
+        checkValidUUID(roleInstanceId);
+
+        Statement revokeGrant = this.conn.createStatement();
+
+        try {
+            revokeGrant.execute("REVOKE ALL ON DATABASE \"" + dbInstanceId + "\" FROM \"" + roleInstanceId + "\"");
+        } catch (SQLException e) {
+            logger.warn(e.getMessage());
+        }
     }
 
-    private ServiceInstance createServiceInstance(String instanceId) {
-        return null;
+    private void checkValidUUID(String instanceId) throws SQLException{
+        UUID uuid = UUID.fromString(instanceId);
+
+        if(!instanceId.equals(uuid.toString())) {
+            throw new SQLException("UUID '" + instanceId + "' is not an UUID.");
+        }
     }
 }

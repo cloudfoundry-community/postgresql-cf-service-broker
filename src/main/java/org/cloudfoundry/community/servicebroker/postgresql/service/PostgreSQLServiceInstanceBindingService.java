@@ -15,34 +15,48 @@
  */
 package org.cloudfoundry.community.servicebroker.postgresql.service;
 
+import java.sql.SQLException;
+
 import org.cloudfoundry.community.servicebroker.exception.ServiceBrokerException;
 import org.cloudfoundry.community.servicebroker.exception.ServiceInstanceBindingExistsException;
 import org.cloudfoundry.community.servicebroker.model.ServiceInstance;
 import org.cloudfoundry.community.servicebroker.model.ServiceInstanceBinding;
 import org.cloudfoundry.community.servicebroker.service.ServiceInstanceBindingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PostgreSQLServiceInstanceBindingService implements ServiceInstanceBindingService {
-    private final Database db;
+    private static final Logger logger = LoggerFactory.getLogger(PostgreSQLServiceInstanceBindingService.class);
+    private final Role role;
 
     @Autowired
-    public PostgreSQLServiceInstanceBindingService(Database db) {
-        this.db = db;
+    public PostgreSQLServiceInstanceBindingService(Role role) {
+        this.role = role;
     }
 
     @Override
     public ServiceInstanceBinding createServiceInstanceBinding(String bindingId, ServiceInstance serviceInstance,
             String serviceId, String planId, String appGuid) throws ServiceInstanceBindingExistsException,
             ServiceBrokerException {
+        try {
+            this.role.bindRoleToDatabase(serviceInstance.getId(), serviceInstance.getId());
+        } catch (SQLException e) {
+            logger.warn(e.getMessage());
+        }
         return new ServiceInstanceBinding(bindingId, serviceInstance.getId(), null, null, appGuid);
     }
 
     @Override
     public ServiceInstanceBinding deleteServiceInstanceBinding(String bindingId, ServiceInstance serviceInstance,
             String serviceId, String planId) throws ServiceBrokerException {
-        // TODO make operations idempotent so we can handle retries on error
+        try {
+            this.role.unBindRoleFromDatabase(serviceInstance.getId(), serviceInstance.getId());
+        } catch (SQLException e) {
+            logger.warn(e.getMessage());
+        }
         return new ServiceInstanceBinding(bindingId, serviceInstance.getId(), null, null, null);
     }
 
