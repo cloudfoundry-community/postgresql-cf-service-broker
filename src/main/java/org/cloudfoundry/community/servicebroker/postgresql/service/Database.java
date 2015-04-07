@@ -57,20 +57,14 @@ public class Database {
     }
 
     public void deleteDatabase(String instanceId) throws SQLException {
-        PreparedStatement deleteDatabase = this.conn.prepareStatement("DROP DATABASE ?");
-        deleteDatabase.setString(1, instanceId);
+        checkValidUUID(instanceId);
 
-        PreparedStatement deleteRole = this.conn.prepareStatement("DROP ROLE ?");
-        deleteRole.setString(1, instanceId);
+        Statement deleteDatabase = this.conn.createStatement();
 
         try {
-            this.conn.setAutoCommit(false);
-            deleteDatabase.executeQuery();
-            this.conn.commit();
+            deleteDatabase.execute("DROP DATABASE \"" + instanceId + "\"");
         } catch (SQLException e) {
-            this.conn.rollback();
-        } finally {
-            this.conn.setAutoCommit(true);
+            logger.warn(e.getMessage());
         }
     }
 

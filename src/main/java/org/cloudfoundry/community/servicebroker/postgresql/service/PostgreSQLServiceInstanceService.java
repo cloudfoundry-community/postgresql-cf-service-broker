@@ -50,8 +50,9 @@ public class PostgreSQLServiceInstanceService implements ServiceInstanceService 
     public ServiceInstance deleteServiceInstance(String id, String serviceId, String planId)
             throws ServiceBrokerException {
         ServiceInstance instance = getServiceInstance(id);
+
         try {
-            db.deleteDatabase(serviceId);
+            db.deleteDatabase(id);
         } catch (SQLException e) {
             throw new ServiceBrokerException(e.toString());
         }
