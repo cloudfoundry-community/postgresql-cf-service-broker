@@ -41,7 +41,7 @@ public class PostgreSQLServiceInstanceService implements ServiceInstanceService 
         try {
             db.createDatabaseForInstance(serviceInstanceId);
         } catch (SQLException e) {
-            throw new ServiceBrokerException(e.toString());
+            throw new ServiceBrokerException(e.getMessage());
         }
         return new ServiceInstance(serviceInstanceId, service.getId(), planId, organizationGuid, spaceGuid, null);
     }

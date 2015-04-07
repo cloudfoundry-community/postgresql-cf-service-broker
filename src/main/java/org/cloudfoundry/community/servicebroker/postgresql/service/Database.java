@@ -19,7 +19,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
+import java.util.UUID;
 
 import org.cloudfoundry.community.servicebroker.model.ServiceInstance;
 import org.slf4j.Logger;
@@ -41,23 +43,16 @@ public class Database {
     }
 
     public void createDatabaseForInstance(String instanceId) throws SQLException {
-    	System.out.println("Instance: " + instanceId);
-        PreparedStatement createDatabase = this.conn.prepareStatement("CREATE DATABASE ?");
-        createDatabase.setString(1, instanceId);
-        
-        PreparedStatement makePrivate = this.conn.prepareStatement("REVOKE all on database ? from public");
-        makePrivate.setString(1, instanceId);
+        checkValidUUID(instanceId);
+
+        Statement createDatabase = this.conn.createStatement();
+        Statement makePrivate = this.conn.createStatement();
 
         try {
-            this.conn.setAutoCommit(false);
-            createDatabase.executeQuery();
-            makePrivate.executeQuery();
-            this.conn.commit();
+            createDatabase.execute("CREATE DATABASE \"" + instanceId + "\" ENCODING 'UTF8'");
+            makePrivate.execute("REVOKE all on database \"" + instanceId + "\" from public");
         } catch (SQLException e) {
-            this.conn.rollback();
-            logger.warn(e.toString());
-        } finally {
-            this.conn.setAutoCommit(true);
+            logger.warn(e.getMessage());
         }
     }
 
@@ -101,5 +96,13 @@ public class Database {
 
     private ServiceInstance createServiceInstance(String instanceId) {
         return null;
+    }
+
+    private void checkValidUUID(String instanceId) throws SQLException{
+        UUID uuid = UUID.fromString(instanceId);
+
+        if(!instanceId.equals(uuid.toString())) {
+            throw new SQLException("UUID '" + instanceId + "' is not an UUID.");
+        }
     }
 }
