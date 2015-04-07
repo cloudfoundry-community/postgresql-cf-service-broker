@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.mendix.servicebroker.postgresql.config;
+package org.cloudfoundry.community.servicebroker.postgresql.config;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -37,7 +37,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 @Configuration
-@ComponentScan(basePackages = "com.mendix.servicebroker", excludeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = BrokerApiVersionConfig.class) })
+@ComponentScan(basePackages = "org.cloudfoundry.community.servicebroker", excludeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = BrokerApiVersionConfig.class) })
 public class BrokerConfiguration {
     @Value("${MASTER_JDBC_URL}")
     private String jdbcUrl;
@@ -53,29 +53,29 @@ public class BrokerConfiguration {
 
     @Bean
     public Catalog catalog() throws JsonParseException, JsonMappingException, IOException {
-        ServiceDefinition serviceDefinition = new ServiceDefinition("pg", "postgresql",
-                "Postgresql on shared instance.", true, getPlans(), getTags(), getServiceDefinitionMetadata(),
+        ServiceDefinition serviceDefinition = new ServiceDefinition("pg", "PostgreSQL",
+                "PostgreSQL on shared instance.", true, getPlans(), getTags(), getServiceDefinitionMetadata(),
                 null, null);
         return new Catalog(Arrays.asList(serviceDefinition));
     }
 
     private List<String> getTags() {
-        return Arrays.asList("s3", "object-storage");
+        return Arrays.asList("PostgreSQL", "Database storage");
     }
 
     private Map<String, Object> getServiceDefinitionMetadata() {
         Map<String, Object> sdMetadata = new HashMap<String, Object>();
-        sdMetadata.put("displayName", "Postgresql");
-        sdMetadata.put("imageUrl", "http://a1.awsstatic.com/images/logos/aws_logo.png");
-        sdMetadata.put("longDescription", "Postgresql Service");
-        sdMetadata.put("providerDisplayName", "Amazon");
+        sdMetadata.put("displayName", "PostgreSQL");
+        sdMetadata.put("imageUrl", "https://wiki.postgresql.org/images/3/30/PostgreSQL_logo.3colors.120x120.png");
+        sdMetadata.put("longDescription", "PostgreSQL Service");
+        sdMetadata.put("providerDisplayName", "PostgreSQL");
         sdMetadata.put("documentationUrl", "http://mendix.com/postgresql");
-        sdMetadata.put("supportUrl", "http://aws.amazon.com/s3");
+        sdMetadata.put("supportUrl", "https://support.mendix.com");
         return sdMetadata;
     }
 
     private List<Plan> getPlans() {
-        Plan basic = new Plan("pg-basic-plan", "Basic PG Plan",
+        Plan basic = new Plan("postgresql-basic-plan", "Basic PostgreSQL Plan",
                 "A PG plan providing a single database on a shared instance with limited storage.", getBasicPlanMetadata());
         return Arrays.asList(basic);
     }

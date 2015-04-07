@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.mendix.servicebroker.postgresql.service;
+package org.cloudfoundry.community.servicebroker.postgresql.service;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

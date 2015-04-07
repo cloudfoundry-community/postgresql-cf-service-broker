@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.mendix.servicebroker.postgresql.service;
+package org.cloudfoundry.community.servicebroker.postgresql.service;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -41,9 +41,10 @@ public class Database {
     }
 
     public void createDatabaseForInstance(String instanceId) throws SQLException {
+    	System.out.println("Instance: " + instanceId);
         PreparedStatement createDatabase = this.conn.prepareStatement("CREATE DATABASE ?");
         createDatabase.setString(1, instanceId);
-
+        
         PreparedStatement makePrivate = this.conn.prepareStatement("REVOKE all on database ? from public");
         makePrivate.setString(1, instanceId);
 

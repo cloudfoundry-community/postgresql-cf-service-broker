@@ -11,7 +11,7 @@
     <version>2.3.0-SNAPSHOT</version>
 
     <properties>
-        <start-class>com.mendix.servicebroker.postgresql.config.Application</start-class>
+        <start-class>org.cloudfoundry.community.servicebroker.postgresql.config.Application</start-class>
         <spring-boot-cf-service-broker.version>2.3.3</spring-boot-cf-service-broker.version>
     </properties>
 
