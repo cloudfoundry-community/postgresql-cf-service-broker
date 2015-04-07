@@ -69,13 +69,17 @@ public class Database {
     }
 
     public ServiceInstance findServiceInstance(String instanceId) throws SQLException {
-        PreparedStatement findDatabase = this.conn.prepareStatement("SELECT datname FROM pg_database WHERE datname = ?");
+        checkValidUUID(instanceId);
+
+        PreparedStatement findDatabase = this.conn.prepareStatement("SELECT datname FROM pg_database WHERE datname = \"?\"");
+        findDatabase.setString(1, instanceId);
         ResultSet result = null;
         try {
             result = findDatabase.executeQuery();
             if (result.next())
                 return null;
         } catch (SQLException e) {
+            logger.warn(e.getMessage());
         } finally {
             if (result != null)
                 result.close();
