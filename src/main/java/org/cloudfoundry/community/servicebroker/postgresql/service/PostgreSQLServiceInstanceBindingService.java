@@ -68,7 +68,7 @@ public class PostgreSQLServiceInstanceBindingService implements ServiceInstanceB
     public ServiceInstanceBinding deleteServiceInstanceBinding(String bindingId, ServiceInstance serviceInstance,
             String serviceId, String planId) throws ServiceBrokerException {
         try {
-            this.role.unBindRoleFromDatabase(serviceInstance.getId(), serviceInstance.getId());
+            this.role.unBindRoleFromDatabase(serviceInstance.getId());
         } catch (SQLException e) {
             logger.warn(e.getMessage());
         }

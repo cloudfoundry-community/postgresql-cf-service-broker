@@ -82,14 +82,13 @@ public class Role {
         return passwd;
     }
 
-    public void unBindRoleFromDatabase(String dbInstanceId, String roleInstanceId) throws SQLException{
+    public void unBindRoleFromDatabase(String dbInstanceId) throws SQLException{
         checkValidUUID(dbInstanceId);
-        checkValidUUID(roleInstanceId);
 
         Statement revokeGrant = this.conn.createStatement();
 
         try {
-            revokeGrant.execute("REVOKE ALL ON DATABASE \"" + dbInstanceId + "\" FROM \"" + roleInstanceId + "\"");
+            revokeGrant.execute("ALTER ROLE \"" + dbInstanceId + "\" NOLOGIN");
         } catch (SQLException e) {
             logger.warn(e.getMessage());
         } finally {
