@@ -29,7 +29,6 @@ import org.cloudfoundry.community.servicebroker.config.BrokerApiVersionConfig;
 import org.cloudfoundry.community.servicebroker.model.Catalog;
 import org.cloudfoundry.community.servicebroker.model.Plan;
 import org.cloudfoundry.community.servicebroker.model.ServiceDefinition;
-import org.cloudfoundry.community.servicebroker.postgresql.service.PostgreSQLServiceInstanceBindingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,9 +58,7 @@ public class BrokerConfiguration {
                     + " spaceGuid varchar(200) not null default '')";
 
             Statement createServiceTable = conn.createStatement();
-            System.out.println("Will create table service? : " + serviceTable);
             createServiceTable.execute(serviceTable);
-            System.out.println("Should have created table service");
             return conn;
         } catch (SQLException e) {
             logger.warn(e.getMessage());
