@@ -15,10 +15,12 @@
  */
 package org.cloudfoundry.community.servicebroker.postgresql.service;
 
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.UUID;
+import java.security.SecureRandom;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,19 +65,21 @@ public class Role {
         }
     }
 
-    public void bindRoleToDatabase(String dbInstanceId, String roleInstanceId) throws SQLException {
+    public String bindRoleToDatabase(String dbInstanceId) throws SQLException {
         checkValidUUID(dbInstanceId);
-        checkValidUUID(roleInstanceId);
 
-        Statement grantRole = this.conn.createStatement();
+        SecureRandom random = new SecureRandom();
+        String passwd = new BigInteger(130, random).toString(32);
 
+        Statement enableRole = this.conn.createStatement();
         try {
-            grantRole.execute("GRANT ALL ON DATABASE \"" + dbInstanceId + "\" TO \"" + roleInstanceId + "\"");
+            enableRole.execute("ALTER ROLE \"" + dbInstanceId + "\" LOGIN password '" + passwd + "'");
         } catch (SQLException e) {
             logger.warn(e.getMessage());
         } finally {
-            grantRole.close();
+            enableRole.close();
         }
+        return passwd;
     }
 
     public void unBindRoleFromDatabase(String dbInstanceId, String roleInstanceId) throws SQLException{
