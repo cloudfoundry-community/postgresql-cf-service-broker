@@ -52,10 +52,11 @@ public class BrokerConfiguration {
         try {
             Connection conn = DriverManager.getConnection(this.jdbcUrl);
 
-            String serviceTable = "CREATE TABLE IF NOT EXISTS service (serviceInstanceId varchar(200) not null default '',"
-                    + " serviceDefinitionId varchar(200) not null default '',"
-                    + " organizationGuid varchar(200) not null default '',"
-                    + " spaceGuid varchar(200) not null default '')";
+            String serviceTable = "CREATE TABLE IF NOT EXISTS service (serviceinstanceid varchar(200) not null default '',"
+                    + " servicedefinitionid varchar(200) not null default '',"
+                    + " planid varchar(200) not null default '',"
+                    + " organizationguid varchar(200) not null default '',"
+                    + " spaceguid varchar(200) not null default '')";
 
             Statement createServiceTable = conn.createStatement();
             createServiceTable.execute(serviceTable);

@@ -41,7 +41,7 @@ public class PostgreSQLServiceInstanceService implements ServiceInstanceService 
     public ServiceInstance createServiceInstance(ServiceDefinition service, String serviceInstanceId, String planId,
             String organizationGuid, String spaceGuid) throws ServiceInstanceExistsException, ServiceBrokerException {
         try {
-            db.createDatabaseForInstance(serviceInstanceId, planId, organizationGuid, spaceGuid);
+            db.createDatabaseForInstance(serviceInstanceId, service.getId(), planId, organizationGuid, spaceGuid);
             role.createRoleForInstance(serviceInstanceId, "PASSWORD");
         } catch (SQLException e) {
             throw new ServiceBrokerException(e.getMessage());

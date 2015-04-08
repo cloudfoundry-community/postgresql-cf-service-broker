@@ -42,17 +42,18 @@ public class Database {
         this.conn = conn;
     }
 
-    public void createDatabaseForInstance(String instanceId, String planId, String organizationGuid, String spaceGuid) throws SQLException {
+    public void createDatabaseForInstance(String instanceId, String serviceId, String planId, String organizationGuid, String spaceGuid) throws SQLException {
         checkValidUUID(instanceId);
 
         Statement createDatabase = this.conn.createStatement();
         Statement makePrivate = this.conn.createStatement();
 
-        PreparedStatement insertService = this.conn.prepareStatement("INSERT INTO service (serviceinstanceid, servicedefinitionid, organizationguid, spaceguid) VALUES (?, ?, ?, ?)");
+        PreparedStatement insertService = this.conn.prepareStatement("INSERT INTO service (serviceinstanceid, servicedefinitionid, planid, organizationguid, spaceguid) VALUES (?, ?, ?, ?, ?)");
         insertService.setString(1, instanceId);
-        insertService.setString(2, planId);
-        insertService.setString(3, organizationGuid);
-        insertService.setString(4, spaceGuid);
+        insertService.setString(2, serviceId);
+        insertService.setString(3, planId);
+        insertService.setString(4, organizationGuid);
+        insertService.setString(5, spaceGuid);
 
         try {
             createDatabase.execute("CREATE DATABASE \"" + instanceId + "\" ENCODING 'UTF8'");
@@ -87,14 +88,20 @@ public class Database {
 
     public ServiceInstance findServiceInstance(String instanceId) throws SQLException {
         checkValidUUID(instanceId);
-
-        PreparedStatement findDatabase = this.conn.prepareStatement("SELECT datname FROM pg_database WHERE datname = \"?\"");
+        PreparedStatement findDatabase = this.conn.prepareStatement("SELECT * FROM service WHERE serviceinstanceid = ?");
         findDatabase.setString(1, instanceId);
+
         ResultSet result = null;
         try {
             result = findDatabase.executeQuery();
-            if (result.next())
-                return null;
+            if (result.next()) {
+                String serviceDefinitionId = result.getString("servicedefinitionid");
+                String organizationGuid = result.getString("organizationguid");
+                String planId = result.getString("planid");
+                String spaceGuid = result.getString("spaceguid");
+
+                return new ServiceInstance(instanceId, serviceDefinitionId, planId, organizationGuid, spaceGuid, null);
+            }
         } catch (SQLException e) {
             logger.warn(e.getMessage());
         } finally {
