@@ -42,7 +42,7 @@ public class PostgreSQLServiceInstanceService implements ServiceInstanceService 
             String organizationGuid, String spaceGuid) throws ServiceInstanceExistsException, ServiceBrokerException {
         try {
             db.createDatabaseForInstance(serviceInstanceId, service.getId(), planId, organizationGuid, spaceGuid);
-            role.createRoleForInstance(serviceInstanceId, "PASSWORD");
+            role.createRoleForInstance(serviceInstanceId);
         } catch (SQLException e) {
             throw new ServiceBrokerException(e.getMessage());
         }

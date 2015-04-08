@@ -36,11 +36,11 @@ public class Role {
         this.conn = conn;
     }
 
-    public void createRoleForInstance(String instanceId, String password) throws SQLException {
+    public void createRoleForInstance(String instanceId) throws SQLException {
         Statement createRole = this.conn.createStatement();
 
         try {
-            createRole.execute("CREATE ROLE \"" + instanceId + "\" LOGIN PASSWORD '" + password + "'");
+            createRole.execute("CREATE ROLE \"" + instanceId + "\"");
         } catch (SQLException e) {
             logger.warn(e.getMessage());
         } finally {
