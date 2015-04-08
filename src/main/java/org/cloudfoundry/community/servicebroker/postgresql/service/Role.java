@@ -46,6 +46,8 @@ public class Role {
             createRole.execute("CREATE ROLE \"" + instanceId + "\" LOGIN PASSWORD '" + password + "'");
         } catch (SQLException e) {
             logger.warn(e.getMessage());
+        } finally {
+            createRole.close();
         }
     }
 
@@ -56,6 +58,8 @@ public class Role {
             deleteRole.execute("DROP ROLE \"" + instanceId + "\"");
         } catch (SQLException e) {
             logger.warn(e.getMessage());
+        } finally {
+            deleteRole.close();
         }
     }
 
@@ -69,6 +73,8 @@ public class Role {
             grantRole.execute("GRANT ALL ON DATABASE \"" + dbInstanceId + "\" TO \"" + roleInstanceId + "\"");
         } catch (SQLException e) {
             logger.warn(e.getMessage());
+        } finally {
+            grantRole.close();
         }
     }
 
@@ -82,6 +88,8 @@ public class Role {
             revokeGrant.execute("REVOKE ALL ON DATABASE \"" + dbInstanceId + "\" FROM \"" + roleInstanceId + "\"");
         } catch (SQLException e) {
             logger.warn(e.getMessage());
+        } finally {
+            revokeGrant.close();
         }
     }
 

@@ -60,6 +60,10 @@ public class Database {
             insertService.executeUpdate();
         } catch (SQLException e) {
             logger.warn(e.getMessage());
+        } finally {
+            createDatabase.close();
+            makePrivate.close();
+            insertService.close();
         }
     }
 
@@ -75,6 +79,9 @@ public class Database {
             deleteService.executeUpdate();
         } catch (SQLException e) {
             logger.warn(e.getMessage());
+        } finally {
+            deleteDatabase.close();
+            deleteService.close();
         }
     }
 
