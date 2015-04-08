@@ -42,15 +42,22 @@ public class Database {
         this.conn = conn;
     }
 
-    public void createDatabaseForInstance(String instanceId) throws SQLException {
+    public void createDatabaseForInstance(String instanceId, String planId, String organizationGuid, String spaceGuid) throws SQLException {
         checkValidUUID(instanceId);
 
         Statement createDatabase = this.conn.createStatement();
         Statement makePrivate = this.conn.createStatement();
 
+        PreparedStatement insertService = this.conn.prepareStatement("INSERT INTO service (serviceinstanceid, servicedefinitionid, organizationguid, spaceguid) VALUES (?, ?, ?, ?)");
+        insertService.setString(1, instanceId);
+        insertService.setString(2, planId);
+        insertService.setString(3, organizationGuid);
+        insertService.setString(4, spaceGuid);
+
         try {
             createDatabase.execute("CREATE DATABASE \"" + instanceId + "\" ENCODING 'UTF8'");
             makePrivate.execute("REVOKE all on database \"" + instanceId + "\" from public");
+            insertService.executeUpdate();
         } catch (SQLException e) {
             logger.warn(e.getMessage());
         }
@@ -60,9 +67,12 @@ public class Database {
         checkValidUUID(instanceId);
 
         Statement deleteDatabase = this.conn.createStatement();
+        PreparedStatement deleteService = this.conn.prepareStatement("DELETE FROM service WHERE serviceinstanceid=?");
+        deleteService.setString(1, instanceId);
 
         try {
             deleteDatabase.execute("DROP DATABASE \"" + instanceId + "\"");
+            deleteService.executeUpdate();
         } catch (SQLException e) {
             logger.warn(e.getMessage());
         }

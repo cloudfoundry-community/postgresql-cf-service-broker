@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -28,27 +29,44 @@ import org.cloudfoundry.community.servicebroker.config.BrokerApiVersionConfig;
 import org.cloudfoundry.community.servicebroker.model.Catalog;
 import org.cloudfoundry.community.servicebroker.model.Plan;
 import org.cloudfoundry.community.servicebroker.model.ServiceDefinition;
+import org.cloudfoundry.community.servicebroker.postgresql.service.PostgreSQLServiceInstanceBindingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
+
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 @Configuration
 @ComponentScan(basePackages = "org.cloudfoundry.community.servicebroker", excludeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = BrokerApiVersionConfig.class) })
 public class BrokerConfiguration {
+    private static final Logger logger = LoggerFactory.getLogger(BrokerConfiguration.class);
     @Value("${MASTER_JDBC_URL}")
     private String jdbcUrl;
 
     @Bean
     public Connection jdbc() {
         try {
-			return DriverManager.getConnection(this.jdbcUrl);
-		} catch (SQLException e) {
-			return null;
-		}
+            Connection conn = DriverManager.getConnection(this.jdbcUrl);
+
+            String serviceTable = "CREATE TABLE IF NOT EXISTS service (serviceInstanceId varchar(200) not null default '',"
+                    + " serviceDefinitionId varchar(200) not null default '',"
+                    + " organizationGuid varchar(200) not null default '',"
+                    + " spaceGuid varchar(200) not null default '')";
+
+            Statement createServiceTable = conn.createStatement();
+            System.out.println("Will create table service? : " + serviceTable);
+            createServiceTable.execute(serviceTable);
+            System.out.println("Should have created table service");
+            return conn;
+        } catch (SQLException e) {
+            logger.warn(e.getMessage());
+            return null;
+        }
     }
 
     @Bean
