@@ -38,13 +38,16 @@ public class Role {
 
     public void createRoleForInstance(String instanceId) throws SQLException {
         Statement createRole = this.conn.createStatement();
+        Statement alterDatabase = this.conn.createStatement();
 
         try {
             createRole.execute("CREATE ROLE \"" + instanceId + "\"");
+            alterDatabase.execute("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + instanceId + "\"");
         } catch (SQLException e) {
             logger.warn(e.getMessage());
         } finally {
             createRole.close();
+            alterDatabase.close();
         }
     }
 

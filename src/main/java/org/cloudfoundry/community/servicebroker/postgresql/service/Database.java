@@ -72,10 +72,26 @@ public class Database {
         checkValidUUID(instanceId);
 
         Statement deleteDatabase = this.conn.createStatement();
+        Statement takeOwnership = this.conn.createStatement();
+
+        PreparedStatement getCurrentUser = this.conn.prepareStatement("SELECT current_user");
+
+        PreparedStatement terminateConnections = this.conn.prepareStatement("SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = ? AND pid <> pg_backend_pid()");
+        terminateConnections.setString(1, instanceId);
+
         PreparedStatement deleteService = this.conn.prepareStatement("DELETE FROM service WHERE serviceinstanceid=?");
         deleteService.setString(1, instanceId);
 
         try {
+            String currentUser = "";
+            ResultSet result = getCurrentUser.executeQuery();
+            if(result.next()) {
+                currentUser = result.getString("current_user");
+            } else {
+                logger.warn("Current user could not be found?");
+            }
+            terminateConnections.executeQuery();
+            takeOwnership.execute("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + currentUser + "\"");
             deleteDatabase.execute("DROP DATABASE \"" + instanceId + "\"");
             deleteService.executeUpdate();
         } catch (SQLException e) {
