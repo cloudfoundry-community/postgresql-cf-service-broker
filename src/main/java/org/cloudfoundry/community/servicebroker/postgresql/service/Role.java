@@ -24,6 +24,8 @@ public class Role {
     }
 
     public void createRoleForInstance(String instanceId) throws SQLException {
+        Database.checkValidUUID(instanceId);
+
         Statement statement = this.conn.createStatement();
 
         try {
@@ -37,6 +39,8 @@ public class Role {
     }
 
     public void deleteRole(String instanceId) throws SQLException {
+        Database.checkValidUUID(instanceId);
+
         Statement statement = this.conn.createStatement();
 
         try {
@@ -49,7 +53,7 @@ public class Role {
     }
 
     public String bindRoleToDatabase(String dbInstanceId) throws SQLException {
-        checkValidUUID(dbInstanceId);
+        Database.checkValidUUID(dbInstanceId);
 
         SecureRandom random = new SecureRandom();
         String passwd = new BigInteger(130, random).toString(32);
@@ -66,7 +70,7 @@ public class Role {
     }
 
     public void unBindRoleFromDatabase(String dbInstanceId) throws SQLException{
-        checkValidUUID(dbInstanceId);
+        Database.checkValidUUID(dbInstanceId);
 
         Statement statement = this.conn.createStatement();
 
@@ -76,14 +80,6 @@ public class Role {
             logger.warn(e.getMessage());
         } finally {
             statement.close();
-        }
-    }
-
-    private void checkValidUUID(String instanceId) throws SQLException{
-        UUID uuid = UUID.fromString(instanceId);
-
-        if(!instanceId.equals(uuid.toString())) {
-            throw new SQLException("UUID '" + instanceId + "' is not an UUID.");
         }
     }
 }

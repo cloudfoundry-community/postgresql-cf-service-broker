@@ -115,7 +115,7 @@ public class Database {
         return serviceInstances;
     }
 
-    private void checkValidUUID(String instanceId) throws SQLException{
+    public static void checkValidUUID(String instanceId) throws SQLException{
         UUID uuid = UUID.fromString(instanceId);
 
         if(!instanceId.equals(uuid.toString())) {
