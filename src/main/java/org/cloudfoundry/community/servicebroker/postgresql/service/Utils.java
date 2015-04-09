@@ -70,6 +70,10 @@ public class Utils {
     }
 
     public static void executePreparedUpdate(String query, Map<Integer, String> parameterMap) throws SQLException {
+        if(parameterMap == null) {
+            throw new SQLException("parameterMap cannot be empty");
+        }
+
         PreparedStatement preparedStatement = conn.prepareStatement(query);
 
         for(Map.Entry<Integer, String> parameter : parameterMap.entrySet()) {
@@ -86,6 +90,9 @@ public class Utils {
     }
 
     public static Map<String, String> executePreparedSelect(String query, Map<Integer, String> parameterMap) throws SQLException {
+        if(parameterMap == null) {
+            throw new SQLException("parameterMap cannot be empty");
+        }
         PreparedStatement preparedStatement = conn.prepareStatement(query);
 
         for(Map.Entry<Integer, String> parameter : parameterMap.entrySet()) {
