@@ -24,29 +24,27 @@ public class Role {
     }
 
     public void createRoleForInstance(String instanceId) throws SQLException {
-        Statement createRole = this.conn.createStatement();
-        Statement alterDatabase = this.conn.createStatement();
+        Statement statement = this.conn.createStatement();
 
         try {
-            createRole.execute("CREATE ROLE \"" + instanceId + "\"");
-            alterDatabase.execute("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + instanceId + "\"");
+            statement.execute("CREATE ROLE \"" + instanceId + "\"");
+            statement.execute("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + instanceId + "\"");
         } catch (SQLException e) {
             logger.warn(e.getMessage());
         } finally {
-            createRole.close();
-            alterDatabase.close();
+            statement.close();
         }
     }
 
     public void deleteRole(String instanceId) throws SQLException {
-        Statement deleteRole = this.conn.createStatement();
+        Statement statement = this.conn.createStatement();
 
         try {
-            deleteRole.execute("DROP ROLE \"" + instanceId + "\"");
+            statement.execute("DROP ROLE \"" + instanceId + "\"");
         } catch (SQLException e) {
             logger.warn(e.getMessage());
         } finally {
-            deleteRole.close();
+            statement.close();
         }
     }
 
@@ -56,13 +54,13 @@ public class Role {
         SecureRandom random = new SecureRandom();
         String passwd = new BigInteger(130, random).toString(32);
 
-        Statement enableRole = this.conn.createStatement();
+        Statement statement = this.conn.createStatement();
         try {
-            enableRole.execute("ALTER ROLE \"" + dbInstanceId + "\" LOGIN password '" + passwd + "'");
+            statement.execute("ALTER ROLE \"" + dbInstanceId + "\" LOGIN password '" + passwd + "'");
         } catch (SQLException e) {
             logger.warn(e.getMessage());
         } finally {
-            enableRole.close();
+            statement.close();
         }
         return passwd;
     }
@@ -70,14 +68,14 @@ public class Role {
     public void unBindRoleFromDatabase(String dbInstanceId) throws SQLException{
         checkValidUUID(dbInstanceId);
 
-        Statement revokeGrant = this.conn.createStatement();
+        Statement statement = this.conn.createStatement();
 
         try {
-            revokeGrant.execute("ALTER ROLE \"" + dbInstanceId + "\" NOLOGIN");
+            statement.execute("ALTER ROLE \"" + dbInstanceId + "\" NOLOGIN");
         } catch (SQLException e) {
             logger.warn(e.getMessage());
         } finally {
-            revokeGrant.close();
+            statement.close();
         }
     }
 

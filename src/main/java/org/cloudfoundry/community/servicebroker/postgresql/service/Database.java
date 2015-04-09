@@ -30,8 +30,7 @@ public class Database {
     public void createDatabaseForInstance(String instanceId, String serviceId, String planId, String organizationGuid, String spaceGuid) throws SQLException {
         checkValidUUID(instanceId);
 
-        Statement createDatabase = this.conn.createStatement();
-        Statement makePrivate = this.conn.createStatement();
+        Statement statement = this.conn.createStatement();
 
         PreparedStatement insertService = this.conn.prepareStatement("INSERT INTO service (serviceinstanceid, servicedefinitionid, planid, organizationguid, spaceguid) VALUES (?, ?, ?, ?, ?)");
         insertService.setString(1, instanceId);
@@ -41,14 +40,13 @@ public class Database {
         insertService.setString(5, spaceGuid);
 
         try {
-            createDatabase.execute("CREATE DATABASE \"" + instanceId + "\" ENCODING 'UTF8'");
-            makePrivate.execute("REVOKE all on database \"" + instanceId + "\" from public");
+            statement.execute("CREATE DATABASE \"" + instanceId + "\" ENCODING 'UTF8'");
+            statement.execute("REVOKE all on database \"" + instanceId + "\" from public");
             insertService.executeUpdate();
         } catch (SQLException e) {
             logger.warn(e.getMessage());
         } finally {
-            createDatabase.close();
-            makePrivate.close();
+            statement.close();
             insertService.close();
         }
     }
@@ -56,8 +54,7 @@ public class Database {
     public void deleteDatabase(String instanceId) throws SQLException {
         checkValidUUID(instanceId);
 
-        Statement deleteDatabase = this.conn.createStatement();
-        Statement takeOwnership = this.conn.createStatement();
+        Statement statement = this.conn.createStatement();
 
         PreparedStatement getCurrentUser = this.conn.prepareStatement("SELECT current_user");
 
@@ -76,13 +73,13 @@ public class Database {
                 logger.warn("Current user could not be found?");
             }
             terminateConnections.executeQuery();
-            takeOwnership.execute("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + currentUser + "\"");
-            deleteDatabase.execute("DROP DATABASE \"" + instanceId + "\"");
+            statement.execute("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + currentUser + "\"");
+            statement.execute("DROP DATABASE \"" + instanceId + "\"");
             deleteService.executeUpdate();
         } catch (SQLException e) {
             logger.warn(e.getMessage());
         } finally {
-            deleteDatabase.close();
+            statement.close();
             deleteService.close();
         }
     }
