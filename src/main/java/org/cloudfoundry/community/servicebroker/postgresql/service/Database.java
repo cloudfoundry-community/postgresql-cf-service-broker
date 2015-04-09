@@ -121,6 +121,7 @@ public class Database {
         } catch (SQLException e) {
             logger.warn(e.getMessage());
         } finally {
+            findDatabase.close();
             if (result != null)
                 result.close();
         }
