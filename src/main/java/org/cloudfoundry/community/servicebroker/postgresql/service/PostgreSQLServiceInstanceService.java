@@ -43,7 +43,7 @@ public class PostgreSQLServiceInstanceService implements ServiceInstanceService 
             db.deleteDatabase(id);
             role.deleteRole(id);
         } catch (SQLException e) {
-            throw new ServiceBrokerException(e.toString());
+            throw new ServiceBrokerException(e.getMessage());
         }
         return instance;
     }
