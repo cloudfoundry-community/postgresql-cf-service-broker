@@ -28,7 +28,7 @@ public class Database {
     }
 
     public void createDatabaseForInstance(String instanceId, String serviceId, String planId, String organizationGuid, String spaceGuid) throws SQLException {
-        checkValidUUID(instanceId);
+        Utils.checkValidUUID(instanceId);
 
         Statement statement = this.conn.createStatement();
 
@@ -52,7 +52,7 @@ public class Database {
     }
 
     public void deleteDatabase(String instanceId) throws SQLException {
-        checkValidUUID(instanceId);
+        Utils.checkValidUUID(instanceId);
 
         Statement statement = this.conn.createStatement();
 
@@ -85,7 +85,7 @@ public class Database {
     }
 
     public ServiceInstance findServiceInstance(String instanceId) throws SQLException {
-        checkValidUUID(instanceId);
+        Utils.checkValidUUID(instanceId);
         PreparedStatement findDatabase = this.conn.prepareStatement("SELECT * FROM service WHERE serviceinstanceid = ?");
         findDatabase.setString(1, instanceId);
 
@@ -113,13 +113,5 @@ public class Database {
     public List<ServiceInstance> getAllServiceInstances() {
         List<ServiceInstance> serviceInstances = Lists.newArrayList();
         return serviceInstances;
-    }
-
-    public static void checkValidUUID(String instanceId) throws SQLException{
-        UUID uuid = UUID.fromString(instanceId);
-
-        if(!instanceId.equals(uuid.toString())) {
-            throw new SQLException("UUID '" + instanceId + "' is not an UUID.");
-        }
     }
 }

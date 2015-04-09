@@ -4,7 +4,6 @@ import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.UUID;
 import java.security.SecureRandom;
 
 import org.slf4j.Logger;
@@ -24,7 +23,7 @@ public class Role {
     }
 
     public void createRoleForInstance(String instanceId) throws SQLException {
-        Database.checkValidUUID(instanceId);
+        Utils.checkValidUUID(instanceId);
 
         Statement statement = this.conn.createStatement();
 
@@ -39,7 +38,7 @@ public class Role {
     }
 
     public void deleteRole(String instanceId) throws SQLException {
-        Database.checkValidUUID(instanceId);
+        Utils.checkValidUUID(instanceId);
 
         Statement statement = this.conn.createStatement();
 
@@ -53,7 +52,7 @@ public class Role {
     }
 
     public String bindRoleToDatabase(String dbInstanceId) throws SQLException {
-        Database.checkValidUUID(dbInstanceId);
+        Utils.checkValidUUID(dbInstanceId);
 
         SecureRandom random = new SecureRandom();
         String passwd = new BigInteger(130, random).toString(32);
@@ -70,7 +69,7 @@ public class Role {
     }
 
     public void unBindRoleFromDatabase(String dbInstanceId) throws SQLException{
-        Database.checkValidUUID(dbInstanceId);
+        Utils.checkValidUUID(dbInstanceId);
 
         Statement statement = this.conn.createStatement();
 
