@@ -49,7 +49,7 @@ public class Database {
                 logger.warn("Current user could not be found?");
             }
 
-            Utils.executePreparedUpdate("SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = ? AND pid <> pg_backend_pid()", parameterMap);
+            Utils.executePreparedSelect("SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = ? AND pid <> pg_backend_pid()", parameterMap);
             Utils.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + currentUser + "\"");
             Utils.executeUpdate("DROP DATABASE \"" + instanceId + "\"");
             Utils.executePreparedUpdate("DELETE FROM service WHERE serviceinstanceid=?", parameterMap);
