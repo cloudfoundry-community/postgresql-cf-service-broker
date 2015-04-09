@@ -4,9 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
-import java.util.UUID;
 
 import org.cloudfoundry.community.servicebroker.model.ServiceInstance;
 import org.slf4j.Logger;
@@ -29,8 +27,8 @@ public class Database {
 
     public void createDatabaseForInstance(String instanceId, String serviceId, String planId, String organizationGuid, String spaceGuid) throws SQLException {
         Utils.checkValidUUID(instanceId);
-
-        Statement statement = this.conn.createStatement();
+        Utils.executeUpdate("CREATE DATABASE \"" + instanceId + "\" ENCODING 'UTF8'");
+        Utils.executeUpdate("REVOKE all on database \"" + instanceId + "\" from public");
 
         PreparedStatement insertService = this.conn.prepareStatement("INSERT INTO service (serviceinstanceid, servicedefinitionid, planid, organizationguid, spaceguid) VALUES (?, ?, ?, ?, ?)");
         insertService.setString(1, instanceId);
@@ -40,21 +38,16 @@ public class Database {
         insertService.setString(5, spaceGuid);
 
         try {
-            statement.execute("CREATE DATABASE \"" + instanceId + "\" ENCODING 'UTF8'");
-            statement.execute("REVOKE all on database \"" + instanceId + "\" from public");
             insertService.executeUpdate();
         } catch (SQLException e) {
             logger.warn(e.getMessage());
         } finally {
-            statement.close();
             insertService.close();
         }
     }
 
     public void deleteDatabase(String instanceId) throws SQLException {
         Utils.checkValidUUID(instanceId);
-
-        Statement statement = this.conn.createStatement();
 
         PreparedStatement getCurrentUser = this.conn.prepareStatement("SELECT current_user");
 
@@ -73,13 +66,12 @@ public class Database {
                 logger.warn("Current user could not be found?");
             }
             terminateConnections.executeQuery();
-            statement.execute("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + currentUser + "\"");
-            statement.execute("DROP DATABASE \"" + instanceId + "\"");
+            Utils.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + currentUser + "\"");
+            Utils.executeUpdate("DROP DATABASE \"" + instanceId + "\"");
             deleteService.executeUpdate();
         } catch (SQLException e) {
             logger.warn(e.getMessage());
         } finally {
-            statement.close();
             deleteService.close();
         }
     }
