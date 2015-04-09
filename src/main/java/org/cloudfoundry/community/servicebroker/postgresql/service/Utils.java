@@ -2,8 +2,11 @@ package org.cloudfoundry.community.servicebroker.postgresql.service;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -56,5 +59,33 @@ public class Utils {
         } finally {
             preparedStatement.close();
         }
+    }
+
+    public static Map<String, String> executePreparedSelect(String query, Map<Integer, String> parameterMap) throws SQLException {
+        PreparedStatement preparedStatement = conn.prepareStatement(query);
+
+        for(Map.Entry<Integer, String> parameter : parameterMap.entrySet()) {
+            preparedStatement.setString(parameter.getKey(), parameter.getValue());
+        }
+
+        try {
+            ResultSet result = preparedStatement.executeQuery();
+            ResultSetMetaData resultMetaData = result.getMetaData();
+            int columns = resultMetaData.getColumnCount();
+
+            Map<String, String> resultMap = new HashMap<String, String>(columns);
+
+            if(result.next()) {
+                for(int i = 1; i <= columns; i++) {
+                    resultMap.put(resultMetaData.getColumnName(i), result.getString(i));
+                }
+            }
+
+            return resultMap;
+        } catch (SQLException e) {
+            logger.warn(e.getMessage());
+        }
+
+        return null;
     }
 }

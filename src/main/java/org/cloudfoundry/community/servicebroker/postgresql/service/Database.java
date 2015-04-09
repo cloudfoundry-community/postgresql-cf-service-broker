@@ -1,8 +1,5 @@
 package org.cloudfoundry.community.servicebroker.postgresql.service;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -11,21 +8,13 @@ import java.util.Map;
 import org.cloudfoundry.community.servicebroker.model.ServiceInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
 @Component
 public class Database {
-
     private static final Logger logger = LoggerFactory.getLogger(Database.class);
-    private final Connection conn;
-
-    @Autowired
-    public Database(Connection conn) {
-        this.conn = conn;
-    }
 
     public void createDatabaseForInstance(String instanceId, String serviceId, String planId, String organizationGuid, String spaceGuid) throws SQLException {
         Utils.checkValidUUID(instanceId);
@@ -48,16 +37,18 @@ public class Database {
         Map<Integer, String> parameterMap = new HashMap<Integer, String>();
         parameterMap.put(1, instanceId);
 
-        PreparedStatement getCurrentUser = this.conn.prepareStatement("SELECT current_user");
-
         try {
-            String currentUser = "";
-            ResultSet result = getCurrentUser.executeQuery();
-            if(result.next()) {
-                currentUser = result.getString("current_user");
-            } else {
+            Map<String, String> result = Utils.executePreparedSelect("SELECT current_user", null);
+            String currentUser = null;
+
+            if(result != null) {
+                currentUser = result.get("current_user");
+            }
+
+            if(currentUser == null) {
                 logger.warn("Current user could not be found?");
             }
+
             Utils.executePreparedUpdate("SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = ? AND pid <> pg_backend_pid()", parameterMap);
             Utils.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + currentUser + "\"");
             Utils.executeUpdate("DROP DATABASE \"" + instanceId + "\"");
@@ -69,28 +60,18 @@ public class Database {
 
     public ServiceInstance findServiceInstance(String instanceId) throws SQLException {
         Utils.checkValidUUID(instanceId);
-        PreparedStatement findDatabase = this.conn.prepareStatement("SELECT * FROM service WHERE serviceinstanceid = ?");
-        findDatabase.setString(1, instanceId);
 
-        ResultSet result = null;
-        try {
-            result = findDatabase.executeQuery();
-            if (result.next()) {
-                String serviceDefinitionId = result.getString("servicedefinitionid");
-                String organizationGuid = result.getString("organizationguid");
-                String planId = result.getString("planid");
-                String spaceGuid = result.getString("spaceguid");
+        Map<Integer, String> parameterMap = new HashMap<Integer, String>();
+        parameterMap.put(1, instanceId);
 
-                return new ServiceInstance(instanceId, serviceDefinitionId, planId, organizationGuid, spaceGuid, null);
-            }
-        } catch (SQLException e) {
-            logger.warn(e.getMessage());
-        } finally {
-            findDatabase.close();
-            if (result != null)
-                result.close();
-        }
-        return null;
+        Map<String, String> result = Utils.executePreparedSelect("SELECT * FROM service WHERE serviceinstanceid = ?", parameterMap);
+
+        String serviceDefinitionId = result.get("servicedefinitionid");
+        String organizationGuid = result.get("organizationguid");
+        String planId = result.get("planid");
+        String spaceGuid = result.get("spaceguid");
+
+        return new ServiceInstance(instanceId, serviceDefinitionId, planId, organizationGuid, spaceGuid, null);
     }
 
     public List<ServiceInstance> getAllServiceInstances() {
