@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.cloudfoundry.community.servicebroker.model.ServiceInstance;
 import org.slf4j.Logger;
@@ -30,32 +32,23 @@ public class Database {
         Utils.executeUpdate("CREATE DATABASE \"" + instanceId + "\" ENCODING 'UTF8'");
         Utils.executeUpdate("REVOKE all on database \"" + instanceId + "\" from public");
 
-        PreparedStatement insertService = this.conn.prepareStatement("INSERT INTO service (serviceinstanceid, servicedefinitionid, planid, organizationguid, spaceguid) VALUES (?, ?, ?, ?, ?)");
-        insertService.setString(1, instanceId);
-        insertService.setString(2, serviceId);
-        insertService.setString(3, planId);
-        insertService.setString(4, organizationGuid);
-        insertService.setString(5, spaceGuid);
+        Map<Integer, String> parameterMap = new HashMap<Integer, String>();
+        parameterMap.put(1, instanceId);
+        parameterMap.put(2, serviceId);
+        parameterMap.put(3, planId);
+        parameterMap.put(4, organizationGuid);
+        parameterMap.put(5, spaceGuid);
 
-        try {
-            insertService.executeUpdate();
-        } catch (SQLException e) {
-            logger.warn(e.getMessage());
-        } finally {
-            insertService.close();
-        }
+        Utils.executePreparedUpdate("INSERT INTO service (serviceinstanceid, servicedefinitionid, planid, organizationguid, spaceguid) VALUES (?, ?, ?, ?, ?)", parameterMap);
     }
 
     public void deleteDatabase(String instanceId) throws SQLException {
         Utils.checkValidUUID(instanceId);
 
+        Map<Integer, String> parameterMap = new HashMap<Integer, String>();
+        parameterMap.put(1, instanceId);
+
         PreparedStatement getCurrentUser = this.conn.prepareStatement("SELECT current_user");
-
-        PreparedStatement terminateConnections = this.conn.prepareStatement("SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = ? AND pid <> pg_backend_pid()");
-        terminateConnections.setString(1, instanceId);
-
-        PreparedStatement deleteService = this.conn.prepareStatement("DELETE FROM service WHERE serviceinstanceid=?");
-        deleteService.setString(1, instanceId);
 
         try {
             String currentUser = "";
@@ -65,14 +58,12 @@ public class Database {
             } else {
                 logger.warn("Current user could not be found?");
             }
-            terminateConnections.executeQuery();
+            Utils.executePreparedUpdate("SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = ? AND pid <> pg_backend_pid()", parameterMap);
             Utils.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + currentUser + "\"");
             Utils.executeUpdate("DROP DATABASE \"" + instanceId + "\"");
-            deleteService.executeUpdate();
+            Utils.executePreparedUpdate("DELETE FROM service WHERE serviceinstanceid=?", parameterMap);
         } catch (SQLException e) {
             logger.warn(e.getMessage());
-        } finally {
-            deleteService.close();
         }
     }
 

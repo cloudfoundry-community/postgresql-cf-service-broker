@@ -1,8 +1,10 @@
 package org.cloudfoundry.community.servicebroker.postgresql.service;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Map;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -37,6 +39,22 @@ public class Utils {
             logger.warn(e.getMessage());
         } finally {
             statement.close();
+        }
+    }
+
+    public static void executePreparedUpdate(String query, Map<Integer, String> parameterMap) throws SQLException {
+        PreparedStatement preparedStatement = conn.prepareStatement(query);
+
+        for(Map.Entry<Integer, String> parameter : parameterMap.entrySet()) {
+            preparedStatement.setString(parameter.getKey(), parameter.getValue());
+        }
+
+        try {
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            logger.warn(e.getMessage());
+        } finally {
+            preparedStatement.close();
         }
     }
 }
