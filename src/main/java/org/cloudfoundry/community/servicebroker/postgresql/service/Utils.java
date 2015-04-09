@@ -45,6 +45,30 @@ public class Utils {
         }
     }
 
+    public static Map<String, String> executeSelect(String query) throws SQLException {
+        Statement statement = conn.createStatement();
+
+        try {
+            ResultSet result = statement.executeQuery(query);
+            ResultSetMetaData resultMetaData = result.getMetaData();
+            int columns = resultMetaData.getColumnCount();
+
+            Map<String, String> resultMap = new HashMap<String, String>(columns);
+
+            if(result.next()) {
+                for(int i = 1; i <= columns; i++) {
+                    resultMap.put(resultMetaData.getColumnName(i), result.getString(i));
+                }
+            }
+
+            return resultMap;
+        } catch (SQLException e) {
+            logger.warn(e.getMessage());
+        }
+
+        return null;
+    }
+
     public static void executePreparedUpdate(String query, Map<Integer, String> parameterMap) throws SQLException {
         PreparedStatement preparedStatement = conn.prepareStatement(query);
 

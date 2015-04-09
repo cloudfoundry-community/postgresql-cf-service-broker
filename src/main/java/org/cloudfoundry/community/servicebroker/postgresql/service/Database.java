@@ -38,7 +38,7 @@ public class Database {
         parameterMap.put(1, instanceId);
 
         try {
-            Map<String, String> result = Utils.executePreparedSelect("SELECT current_user", null);
+            Map<String, String> result = Utils.executeSelect("SELECT current_user");
             String currentUser = null;
 
             if(result != null) {
