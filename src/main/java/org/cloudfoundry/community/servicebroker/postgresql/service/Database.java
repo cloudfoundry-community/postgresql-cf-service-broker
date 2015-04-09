@@ -133,10 +133,6 @@ public class Database {
         return serviceInstances;
     }
 
-    private ServiceInstance createServiceInstance(String instanceId) {
-        return null;
-    }
-
     private void checkValidUUID(String instanceId) throws SQLException{
         UUID uuid = UUID.fromString(instanceId);
 
