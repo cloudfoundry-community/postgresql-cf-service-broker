@@ -31,7 +31,7 @@ public class Role {
 
     public void deleteRole(String instanceId) throws SQLException {
         Utils.checkValidUUID(instanceId);
-        Utils.executeUpdate("DROP ROLE \"" + instanceId + "\"");
+        Utils.executeUpdate("DROP ROLE IF EXISTS \"" + instanceId + "\"");
     }
 
     public String bindRoleToDatabase(String dbInstanceId) throws SQLException {

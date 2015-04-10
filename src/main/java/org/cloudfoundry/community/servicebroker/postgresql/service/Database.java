@@ -66,7 +66,7 @@ public class Database {
 
             Utils.executePreparedSelect("SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = ? AND pid <> pg_backend_pid()", parameterMap);
             Utils.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + currentUser + "\"");
-            Utils.executeUpdate("DROP DATABASE \"" + instanceId + "\"");
+            Utils.executeUpdate("DROP DATABASE IF EXISTS \"" + instanceId + "\"");
             Utils.executePreparedUpdate("DELETE FROM service WHERE serviceinstanceid=?", parameterMap);
         } catch (SQLException e) {
             logger.warn(e.getMessage());
