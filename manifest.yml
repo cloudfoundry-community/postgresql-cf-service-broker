@@ -1,4 +1,4 @@
 ---
 applications:
-  - name: postgresqlservicebroker
+  - name: postgresql-cf-service-broker
     buildpack: java_buildpack
