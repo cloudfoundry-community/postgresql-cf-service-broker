@@ -15,6 +15,7 @@
  */
 package org.cloudfoundry.community.servicebroker.postgresql.service;
 
+import java.net.URI;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,10 +35,21 @@ import org.springframework.stereotype.Component;
 public class Utils {
     private static final Logger logger = LoggerFactory.getLogger(Utils.class);
     private static Connection conn;
+    private static String databaseHost;
+    private static int databasePort;
 
     @Autowired
-    public Utils(Connection conn) {
+    public Utils(Connection conn) throws SQLException {
         Utils.conn = conn;
+
+        try {
+            String cleanURI = conn.getMetaData().getURL().substring(5);
+            URI uri = URI.create(cleanURI);
+            Utils.databaseHost = uri.getHost();
+            Utils.databasePort = (uri.getPort() == -1 ? 5432 : uri.getPort());
+        } catch (Exception e) {
+            throw new SQLException("Unable to get databaseHost and/or databasePort from Connection");
+        }
     }
 
     public static void checkValidUUID(String instanceId) throws SQLException{
@@ -133,5 +145,13 @@ public class Utils {
         }
 
         return null;
+    }
+
+    public static String getDatabaseHost() {
+        return databaseHost;
+    }
+
+    public static int getDatabasePort() {
+        return databasePort;
     }
 }

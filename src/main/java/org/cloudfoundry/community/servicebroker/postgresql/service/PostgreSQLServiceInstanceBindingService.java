@@ -27,17 +27,12 @@ import org.cloudfoundry.community.servicebroker.service.ServiceInstanceBindingSe
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PostgreSQLServiceInstanceBindingService implements ServiceInstanceBindingService {
     private static final Logger logger = LoggerFactory.getLogger(PostgreSQLServiceInstanceBindingService.class);
     private final Role role;
-    @Value("${POSTGRES_HOSTNAME}")
-    private String postgresHostname;
-    @Value("${POSTGRES_PORT:5432}")
-    private int postgresPort;
 
     @Autowired
     public PostgreSQLServiceInstanceBindingService(Role role) {
@@ -56,7 +51,7 @@ public class PostgreSQLServiceInstanceBindingService implements ServiceInstanceB
             logger.warn(e.getMessage());
         }
 
-        String dbURL = String.format("postgres://%s:%s@%s:%d/%s", serviceInstance.getId(), passwd, this.postgresHostname, this.postgresPort, serviceInstance.getId());
+        String dbURL = String.format("postgres://%s:%s@%s:%d/%s", serviceInstance.getId(), passwd, Utils.getDatabaseHost(), Utils.getDatabasePort(), serviceInstance.getId());
 
         Map<String, Object> credentials = new HashMap<String, Object>();
         credentials.put("uri", dbURL);
