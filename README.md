@@ -1,4 +1,4 @@
-# Cloud Foundry Service Broker for a PostgreSQL instance
+# Cloud Foundry Service Broker for a PostgreSQL instance [![Build Status](https://travis-ci.org/cloudfoundry-community/postgresql-cf-service-broker.svg?branch=master)](https://travis-ci.org/cloudfoundry-community/postgresql-cf-service-broker)
 
 A Cloud Foundry Service Broker for a PostgreSQL instance built based on [s3-cf-service-broker](https://github.com/cloudfoundry-community/s3-cf-service-broker).
 
