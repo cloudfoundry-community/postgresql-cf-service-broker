@@ -71,7 +71,7 @@ public class BrokerConfiguration {
     public Catalog catalog() throws JsonParseException, JsonMappingException, IOException {
         ServiceDefinition serviceDefinition = new ServiceDefinition("pg", "PostgreSQL",
                 "PostgreSQL on shared instance.", true, getPlans(), getTags(), getServiceDefinitionMetadata(),
-                null, null);
+                Arrays.asList("syslog_drain"), null);
         return new Catalog(Arrays.asList(serviceDefinition));
     }
 
