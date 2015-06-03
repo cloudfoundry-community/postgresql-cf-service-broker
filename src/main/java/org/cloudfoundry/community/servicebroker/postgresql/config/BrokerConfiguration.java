@@ -43,7 +43,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 @Configuration
 @ComponentScan(basePackages = "org.cloudfoundry.community.servicebroker", excludeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = BrokerApiVersionConfig.class) })
 public class BrokerConfiguration {
+
     private static final Logger logger = LoggerFactory.getLogger(BrokerConfiguration.class);
+
     @Value("${MASTER_JDBC_URL}")
     private String jdbcUrl;
 

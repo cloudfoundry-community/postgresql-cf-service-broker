@@ -15,14 +15,15 @@
  */
 package org.cloudfoundry.community.servicebroker.postgresql.service;
 
-import java.math.BigInteger;
-import java.sql.SQLException;
-import java.security.SecureRandom;
-
 import org.springframework.stereotype.Component;
+
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.sql.SQLException;
 
 @Component
 public class Role {
+
     public void createRoleForInstance(String instanceId) throws SQLException {
         Utils.checkValidUUID(instanceId);
         Utils.executeUpdate("CREATE ROLE \"" + instanceId + "\"");

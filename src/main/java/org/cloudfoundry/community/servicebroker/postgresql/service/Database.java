@@ -15,20 +15,20 @@
  */
 package org.cloudfoundry.community.servicebroker.postgresql.service;
 
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.collect.Lists;
 import org.cloudfoundry.community.servicebroker.model.ServiceInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Lists;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class Database {
+
     private static final Logger logger = LoggerFactory.getLogger(Database.class);
 
     public void createDatabaseForInstance(String instanceId, String serviceId, String planId, String organizationGuid, String spaceGuid) throws SQLException {
