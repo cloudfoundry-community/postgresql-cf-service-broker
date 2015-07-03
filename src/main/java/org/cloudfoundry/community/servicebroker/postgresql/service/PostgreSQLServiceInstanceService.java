@@ -15,9 +15,6 @@
  */
 package org.cloudfoundry.community.servicebroker.postgresql.service;
 
-import java.sql.SQLException;
-import java.util.List;
-
 import org.cloudfoundry.community.servicebroker.exception.ServiceBrokerException;
 import org.cloudfoundry.community.servicebroker.exception.ServiceInstanceExistsException;
 import org.cloudfoundry.community.servicebroker.model.ServiceDefinition;
@@ -26,9 +23,14 @@ import org.cloudfoundry.community.servicebroker.service.ServiceInstanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
+import java.util.List;
+
 @Service
 public class PostgreSQLServiceInstanceService implements ServiceInstanceService {
+
     private final Database db;
+
     private final Role role;
 
     @Autowired

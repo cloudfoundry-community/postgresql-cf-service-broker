@@ -33,9 +33,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Utils {
+
     private static final Logger logger = LoggerFactory.getLogger(Utils.class);
+
     private static Connection conn;
+
     private static String databaseHost;
+
     private static int databasePort;
 
     @Autowired

@@ -15,10 +15,6 @@
  */
 package org.cloudfoundry.community.servicebroker.postgresql.service;
 
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.cloudfoundry.community.servicebroker.exception.ServiceBrokerException;
 import org.cloudfoundry.community.servicebroker.exception.ServiceInstanceBindingExistsException;
 import org.cloudfoundry.community.servicebroker.model.ServiceInstance;
@@ -29,9 +25,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 public class PostgreSQLServiceInstanceBindingService implements ServiceInstanceBindingService {
+
     private static final Logger logger = LoggerFactory.getLogger(PostgreSQLServiceInstanceBindingService.class);
+
     private final Role role;
 
     @Autowired

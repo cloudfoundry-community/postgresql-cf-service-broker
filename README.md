@@ -49,6 +49,20 @@ Add service broker to Cloud Foundry Marketplace:
 cf enable-service-access PostgreSQL -p "Basic PostgreSQL Plan" -o ORG
 ```
 
+## Testing
+
+### Locally
+
+You need to have a running PostgreSQL 9.x instance for this to work locally.
+First, edit ```MASTER_JDBC_URL``` in ```src/test/resources/application.properties``` to match your local PostgreSQL 9.x configuration.
+Then run:
+```
+mvn test
+```
+
+### In Travis CI
+The configuration for the test can be found in ```src/test/resources/application.properties``` and should match the configuration in Travis CI (```.travis.yml```).
+
 ## Using the services in your application
 
 ### Format of Credentials
