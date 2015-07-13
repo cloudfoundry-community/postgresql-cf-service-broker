@@ -20,6 +20,8 @@ import org.cloudfoundry.community.servicebroker.exception.ServiceInstanceExistsE
 import org.cloudfoundry.community.servicebroker.model.ServiceDefinition;
 import org.cloudfoundry.community.servicebroker.model.ServiceInstance;
 import org.cloudfoundry.community.servicebroker.service.ServiceInstanceService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +30,8 @@ import java.util.List;
 
 @Service
 public class PostgreSQLServiceInstanceService implements ServiceInstanceService {
+
+    private static final Logger logger = LoggerFactory.getLogger(PostgreSQLServiceInstanceService.class);
 
     private final Database db;
 
@@ -75,6 +79,7 @@ public class PostgreSQLServiceInstanceService implements ServiceInstanceService 
         try {
             return db.findServiceInstance(id);
         } catch (SQLException e) {
+            logger.error(e.toString());
             return null;
         }
     }

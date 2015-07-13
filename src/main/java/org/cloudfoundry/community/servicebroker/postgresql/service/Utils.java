@@ -52,7 +52,7 @@ public class Utils {
             Utils.databaseHost = uri.getHost();
             Utils.databasePort = (uri.getPort() == -1 ? 5432 : uri.getPort());
         } catch (Exception e) {
-            throw new SQLException("Unable to get databaseHost and/or databasePort from Connection");
+            throw new SQLException("Unable to get databaseHost and/or databasePort from Connection", e);
         }
     }
 
@@ -70,7 +70,7 @@ public class Utils {
         try {
             statement.execute(query);
         } catch (SQLException e) {
-            logger.warn(e.getMessage());
+            logger.error(e.toString());
         } finally {
             statement.close();
         }
@@ -94,10 +94,9 @@ public class Utils {
 
             return resultMap;
         } catch (SQLException e) {
-            logger.warn(e.getMessage());
+            logger.error(e.toString());
+            return null;
         }
-
-        return null;
     }
 
     public static void executePreparedUpdate(String query, Map<Integer, String> parameterMap) throws SQLException {
@@ -114,7 +113,7 @@ public class Utils {
         try {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            logger.warn(e.getMessage());
+            logger.error(e.toString());
         } finally {
             preparedStatement.close();
         }
@@ -124,6 +123,7 @@ public class Utils {
         if(parameterMap == null) {
             throw new SQLException("parameterMap cannot be empty");
         }
+
         PreparedStatement preparedStatement = conn.prepareStatement(query);
 
         for(Map.Entry<Integer, String> parameter : parameterMap.entrySet()) {
@@ -145,10 +145,9 @@ public class Utils {
 
             return resultMap;
         } catch (SQLException e) {
-            logger.warn(e.getMessage());
+            logger.error(e.toString());
+            return null;
         }
-
-        return null;
     }
 
     public static String getDatabaseHost() {
