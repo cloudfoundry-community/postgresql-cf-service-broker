@@ -64,7 +64,7 @@ public class BrokerConfiguration {
             createServiceTable.execute(serviceTable);
             return conn;
         } catch (SQLException e) {
-            logger.warn(e.getMessage());
+            logger.error(e.toString());
             return null;
         }
     }

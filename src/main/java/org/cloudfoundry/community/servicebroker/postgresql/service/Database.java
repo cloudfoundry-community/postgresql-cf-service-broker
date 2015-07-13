@@ -61,7 +61,7 @@ public class Database {
             }
 
             if(currentUser == null) {
-                logger.warn("Current user could not be found?");
+                logger.error("Current user could not be found?");
             }
 
             Utils.executePreparedSelect("SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = ? AND pid <> pg_backend_pid()", parameterMap);
@@ -69,7 +69,7 @@ public class Database {
             Utils.executeUpdate("DROP DATABASE IF EXISTS \"" + instanceId + "\"");
             Utils.executePreparedUpdate("DELETE FROM service WHERE serviceinstanceid=?", parameterMap);
         } catch (SQLException e) {
-            logger.warn(e.getMessage());
+            logger.error(e.getMessage());
         }
     }
 
