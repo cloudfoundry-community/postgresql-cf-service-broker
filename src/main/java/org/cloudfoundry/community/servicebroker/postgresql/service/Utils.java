@@ -47,8 +47,11 @@ public class Utils {
         Utils.conn = conn;
 
         try {
-            String cleanURI = conn.getMetaData().getURL().substring(5);
-            URI uri = URI.create(cleanURI);
+            String jdbcUrl = conn.getMetaData().getURL();
+            // Remove "jdbc:" prefix from the connection JDBC URL to create an URI out of it.
+            String cleanJdbcUrl = jdbcUrl.replace("jdbc:", "");
+
+            URI uri = new URI(cleanJdbcUrl);
             Utils.databaseHost = uri.getHost();
             Utils.databasePort = (uri.getPort() == -1 ? 5432 : uri.getPort());
         } catch (Exception e) {
