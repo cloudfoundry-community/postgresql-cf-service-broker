@@ -22,6 +22,22 @@ mvn package && MASTER_JDBC_URL=jdbcurl java -jar target/postgresql-cf-service-br
 
 ### In Cloud Foundry
 
+Find out the database subnet and create a security group rule (postgresql.json):
+```
+[{"protocol":"tcp","destination":"10.10.8.0/24","ports":"5432"}]
+```
+
+import this into CF with:
+```
+cf create-security-group postgresql-service postgresql.json
+```
+
+Bind to the full cf install:
+```
+cf bind-running-security-group postgresql-service
+```
+
+
 Build the package with `mvn package` then push it out:
 ```
 cf push postgresql-cf-service-broker -p target/postgresql-cf-service-broker-2.3.0-SNAPSHOT.jar --no-start
