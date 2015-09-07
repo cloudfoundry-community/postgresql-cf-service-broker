@@ -26,13 +26,13 @@ public class Role {
 
     public void createRoleForInstance(String instanceId) throws SQLException {
         Utils.checkValidUUID(instanceId);
-        Utils.executeUpdate("CREATE ROLE \"" + instanceId + "\"");
-        Utils.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + instanceId + "\"");
+        PostgreSQLDatabase.executeUpdate("CREATE ROLE \"" + instanceId + "\"");
+        PostgreSQLDatabase.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + instanceId + "\"");
     }
 
     public void deleteRole(String instanceId) throws SQLException {
         Utils.checkValidUUID(instanceId);
-        Utils.executeUpdate("DROP ROLE IF EXISTS \"" + instanceId + "\"");
+        PostgreSQLDatabase.executeUpdate("DROP ROLE IF EXISTS \"" + instanceId + "\"");
     }
 
     public String bindRoleToDatabase(String dbInstanceId) throws SQLException {
@@ -41,12 +41,12 @@ public class Role {
         SecureRandom random = new SecureRandom();
         String passwd = new BigInteger(130, random).toString(32);
 
-        Utils.executeUpdate("ALTER ROLE \"" + dbInstanceId + "\" LOGIN password '" + passwd + "'");
+        PostgreSQLDatabase.executeUpdate("ALTER ROLE \"" + dbInstanceId + "\" LOGIN password '" + passwd + "'");
         return passwd;
     }
 
     public void unBindRoleFromDatabase(String dbInstanceId) throws SQLException{
         Utils.checkValidUUID(dbInstanceId);
-        Utils.executeUpdate("ALTER ROLE \"" + dbInstanceId + "\" NOLOGIN");
+        PostgreSQLDatabase.executeUpdate("ALTER ROLE \"" + dbInstanceId + "\" NOLOGIN");
     }
 }

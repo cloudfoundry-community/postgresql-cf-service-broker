@@ -53,7 +53,7 @@ public class PostgreSQLServiceInstanceBindingService implements ServiceInstanceB
             logger.error(e.toString());
         }
 
-        String dbURL = String.format("postgres://%s:%s@%s:%d/%s", serviceInstance.getId(), passwd, Utils.getDatabaseHost(), Utils.getDatabasePort(), serviceInstance.getId());
+        String dbURL = String.format("postgres://%s:%s@%s:%d/%s", serviceInstance.getId(), passwd, PostgreSQLDatabase.getDatabaseHost(), PostgreSQLDatabase.getDatabasePort(), serviceInstance.getId());
 
         Map<String, Object> credentials = new HashMap<String, Object>();
         credentials.put("uri", dbURL);

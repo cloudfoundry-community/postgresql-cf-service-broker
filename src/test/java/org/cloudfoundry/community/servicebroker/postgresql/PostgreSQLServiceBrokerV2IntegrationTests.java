@@ -9,7 +9,7 @@ import org.cloudfoundry.community.servicebroker.model.Plan;
 import org.cloudfoundry.community.servicebroker.model.ServiceDefinition;
 import org.cloudfoundry.community.servicebroker.postgresql.config.Application;
 import org.cloudfoundry.community.servicebroker.postgresql.config.BrokerConfiguration;
-import org.cloudfoundry.community.servicebroker.postgresql.service.Utils;
+import org.cloudfoundry.community.servicebroker.postgresql.service.PostgreSQLDatabase;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -98,7 +98,7 @@ public class PostgreSQLServiceBrokerV2IntegrationTests extends ServiceBrokerV2In
         assertTrue(checkRoleExists(instanceId));
         assertTrue(checkRoleIsDatabaseOwner(instanceId, instanceId));
 
-        Map<String, String> serviceResult = Utils.executePreparedSelect("SELECT * FROM service WHERE serviceinstanceid = ?", ImmutableMap.of(1, instanceId));
+        Map<String, String> serviceResult = PostgreSQLDatabase.executePreparedSelect("SELECT * FROM service WHERE serviceinstanceid = ?", ImmutableMap.of(1, instanceId));
         assertThat(serviceResult.get("organizationguid"), is(organizationGuid));
         assertThat(serviceResult.get("planid"), is(planId));
         assertThat(serviceResult.get("spaceguid"), is(spaceGuid));
@@ -163,7 +163,7 @@ public class PostgreSQLServiceBrokerV2IntegrationTests extends ServiceBrokerV2In
         assertFalse(checkRoleExists(instanceId));
         assertFalse(checkRoleIsDatabaseOwner(instanceId, instanceId));
 
-        Map<String, String> serviceResult = Utils.executePreparedSelect("SELECT * FROM service WHERE serviceinstanceid = ?", ImmutableMap.of(1, instanceId));
+        Map<String, String> serviceResult = PostgreSQLDatabase.executePreparedSelect("SELECT * FROM service WHERE serviceinstanceid = ?", ImmutableMap.of(1, instanceId));
         assertTrue(serviceResult.isEmpty());
     }
 
@@ -178,17 +178,17 @@ public class PostgreSQLServiceBrokerV2IntegrationTests extends ServiceBrokerV2In
     }
 
     private boolean checkDatabaseExists(String databaseName) throws Exception {
-        Map<String, String> pgDatabaseResult = Utils.executePreparedSelect("SELECT * FROM pg_catalog.pg_database WHERE datname = ?", ImmutableMap.of(1, databaseName));
+        Map<String, String> pgDatabaseResult = PostgreSQLDatabase.executePreparedSelect("SELECT * FROM pg_catalog.pg_database WHERE datname = ?", ImmutableMap.of(1, databaseName));
         return pgDatabaseResult.size() > 0;
     }
 
     private boolean checkRoleExists(String roleName) throws Exception {
-        Map<String, String> pgRoleResult = Utils.executePreparedSelect("SELECT * FROM pg_catalog.pg_roles WHERE rolname = ?", ImmutableMap.of(1, roleName));
+        Map<String, String> pgRoleResult = PostgreSQLDatabase.executePreparedSelect("SELECT * FROM pg_catalog.pg_roles WHERE rolname = ?", ImmutableMap.of(1, roleName));
         return pgRoleResult.size() > 0;
     }
 
     private boolean checkRoleIsDatabaseOwner(String roleName, String databaseName) throws Exception {
-        Map<String, String> pgRoleIsDatabaseOwnerResult = Utils.executePreparedSelect("SELECT d.datname as name, pg_catalog.pg_get_userbyid(d.datdba) as owner FROM pg_catalog.pg_database d WHERE d.datname = ?", ImmutableMap.of(1, databaseName));
+        Map<String, String> pgRoleIsDatabaseOwnerResult = PostgreSQLDatabase.executePreparedSelect("SELECT d.datname as name, pg_catalog.pg_get_userbyid(d.datdba) as owner FROM pg_catalog.pg_database d WHERE d.datname = ?", ImmutableMap.of(1, databaseName));
         String owner = pgRoleIsDatabaseOwnerResult.get("owner");
         return (owner != null) ? owner.equals(roleName) : false;
     }
