@@ -53,7 +53,7 @@ public class Utils {
 
             URI uri = new URI(cleanJdbcUrl);
             Utils.databaseHost = uri.getHost();
-            Utils.databasePort = (uri.getPort() == -1 ? 5432 : uri.getPort());
+            Utils.databasePort = uri.getPort() == -1 ? 5432 : uri.getPort();
         } catch (Exception e) {
             throw new SQLException("Unable to get databaseHost and/or databasePort from Connection", e);
         }
