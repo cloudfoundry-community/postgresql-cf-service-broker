@@ -15,13 +15,13 @@
  */
 package org.cloudfoundry.community.servicebroker.postgresql.service;
 
-import com.google.common.collect.Lists;
 import org.cloudfoundry.community.servicebroker.model.ServiceInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +69,7 @@ public class Database {
             PostgreSQLDatabase.executeUpdate("DROP DATABASE IF EXISTS \"" + instanceId + "\"");
             PostgreSQLDatabase.executePreparedUpdate("DELETE FROM service WHERE serviceinstanceid=?", parameterMap);
         } catch (SQLException e) {
-            logger.error(e.getMessage());
+            logger.error("Error while deleting database for instance '" + instanceId + "'", e);
         }
     }
 
@@ -89,8 +89,8 @@ public class Database {
         return new ServiceInstance(instanceId, serviceDefinitionId, planId, organizationGuid, spaceGuid, null);
     }
 
+    // TODO needs to be implemented
     public List<ServiceInstance> getAllServiceInstances() {
-        List<ServiceInstance> serviceInstances = Lists.newArrayList();
-        return serviceInstances;
+        return Collections.emptyList();
     }
 }
