@@ -50,7 +50,8 @@ public class PostgreSQLServiceInstanceBindingService implements ServiceInstanceB
         try {
             passwd = this.role.bindRoleToDatabase(serviceInstance.getId());
         } catch (SQLException e) {
-            logger.error(e.toString());
+            logger.error("Error while creating service instance binding '" + bindingId + "'", e);
+            throw new ServiceBrokerException(e.getMessage());
         }
 
         String dbURL = String.format("postgres://%s:%s@%s:%d/%s", serviceInstance.getId(), passwd, PostgreSQLDatabase.getDatabaseHost(), PostgreSQLDatabase.getDatabasePort(), serviceInstance.getId());
@@ -67,7 +68,8 @@ public class PostgreSQLServiceInstanceBindingService implements ServiceInstanceB
         try {
             this.role.unBindRoleFromDatabase(serviceInstance.getId());
         } catch (SQLException e) {
-            logger.error(e.toString());
+            logger.error("Error while deleting service instance binding '" + bindingId + "'", e);
+            throw new ServiceBrokerException(e.getMessage());
         }
         return new ServiceInstanceBinding(bindingId, serviceInstance.getId(), null, null, null);
     }
