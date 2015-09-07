@@ -52,25 +52,21 @@ public class Database {
         Map<Integer, String> parameterMap = new HashMap<Integer, String>();
         parameterMap.put(1, instanceId);
 
-        try {
-            Map<String, String> result = PostgreSQLDatabase.executeSelect("SELECT current_user");
-            String currentUser = null;
+        Map<String, String> result = PostgreSQLDatabase.executeSelect("SELECT current_user");
+        String currentUser = null;
 
-            if(result != null) {
-                currentUser = result.get("current_user");
-            }
-
-            if(currentUser == null) {
-                logger.error("Current user could not be found?");
-            }
-
-            PostgreSQLDatabase.executePreparedSelect("SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = ? AND pid <> pg_backend_pid()", parameterMap);
-            PostgreSQLDatabase.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + currentUser + "\"");
-            PostgreSQLDatabase.executeUpdate("DROP DATABASE IF EXISTS \"" + instanceId + "\"");
-            PostgreSQLDatabase.executePreparedUpdate("DELETE FROM service WHERE serviceinstanceid=?", parameterMap);
-        } catch (SQLException e) {
-            logger.error("Error while deleting database for instance '" + instanceId + "'", e);
+        if(result != null) {
+            currentUser = result.get("current_user");
         }
+
+        if(currentUser == null) {
+            logger.error("Current user for instance '" + instanceId + "' could not be found");
+        }
+
+        PostgreSQLDatabase.executePreparedSelect("SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = ? AND pid <> pg_backend_pid()", parameterMap);
+        PostgreSQLDatabase.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + currentUser + "\"");
+        PostgreSQLDatabase.executeUpdate("DROP DATABASE IF EXISTS \"" + instanceId + "\"");
+        PostgreSQLDatabase.executePreparedUpdate("DELETE FROM service WHERE serviceinstanceid=?", parameterMap);
     }
 
     public ServiceInstance findServiceInstance(String instanceId) throws SQLException {

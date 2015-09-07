@@ -63,6 +63,8 @@ public class PostgreSQLDatabase {
         } catch (SQLException e) {
             logger.error("Error while executing SQL SELECT query '" + query + "'", e);
             return null;
+        } finally {
+            statement.close();
         }
     }
 
@@ -103,6 +105,8 @@ public class PostgreSQLDatabase {
         } catch (SQLException e) {
             logger.error("Error while executing SQL prepared SELECT query '" + query + "'", e);
             return null;
+        } finally {
+            preparedStatement.close();
         }
     }
 
