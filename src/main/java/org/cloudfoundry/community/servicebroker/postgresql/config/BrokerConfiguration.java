@@ -37,9 +37,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 @Configuration
 @ComponentScan(basePackages = "org.cloudfoundry.community.servicebroker", excludeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = BrokerApiVersionConfig.class) })
 public class BrokerConfiguration {
@@ -70,7 +67,7 @@ public class BrokerConfiguration {
     }
 
     @Bean
-    public Catalog catalog() throws JsonParseException, JsonMappingException, IOException {
+    public Catalog catalog() throws IOException {
         ServiceDefinition serviceDefinition = new ServiceDefinition("pg", "PostgreSQL",
                 "PostgreSQL on shared instance.", true, getPlans(), getTags(), getServiceDefinitionMetadata(),
                 Arrays.asList("syslog_drain"), null);
