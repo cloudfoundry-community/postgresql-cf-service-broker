@@ -84,18 +84,7 @@ public class Utils {
 
         try {
             ResultSet result = statement.executeQuery(query);
-            ResultSetMetaData resultMetaData = result.getMetaData();
-            int columns = resultMetaData.getColumnCount();
-
-            Map<String, String> resultMap = new HashMap<String, String>(columns);
-
-            if(result.next()) {
-                for(int i = 1; i <= columns; i++) {
-                    resultMap.put(resultMetaData.getColumnName(i), result.getString(i));
-                }
-            }
-
-            return resultMap;
+            return getResultMapFromResultSet(result);
         } catch (SQLException e) {
             logger.error(e.toString());
             return null;
@@ -135,18 +124,7 @@ public class Utils {
 
         try {
             ResultSet result = preparedStatement.executeQuery();
-            ResultSetMetaData resultMetaData = result.getMetaData();
-            int columns = resultMetaData.getColumnCount();
-
-            Map<String, String> resultMap = new HashMap<String, String>(columns);
-
-            if(result.next()) {
-                for(int i = 1; i <= columns; i++) {
-                    resultMap.put(resultMetaData.getColumnName(i), result.getString(i));
-                }
-            }
-
-            return resultMap;
+            return getResultMapFromResultSet(result);
         } catch (SQLException e) {
             logger.error(e.toString());
             return null;
@@ -159,5 +137,20 @@ public class Utils {
 
     public static int getDatabasePort() {
         return databasePort;
+    }
+
+    private static Map<String, String> getResultMapFromResultSet(ResultSet result) throws SQLException {
+        ResultSetMetaData resultMetaData = result.getMetaData();
+        int columns = resultMetaData.getColumnCount();
+
+        Map<String, String> resultMap = new HashMap<String, String>(columns);
+
+        if(result.next()) {
+            for(int i = 1; i <= columns; i++) {
+                resultMap.put(resultMetaData.getColumnName(i), result.getString(i));
+            }
+        }
+
+        return resultMap;
     }
 }
