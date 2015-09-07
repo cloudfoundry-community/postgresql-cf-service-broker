@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class PostgreSQLDatabase {
     private static int databasePort;
 
     @Autowired
-    public PostgreSQLDatabase(Connection conn) throws SQLException {
+    public PostgreSQLDatabase(Connection conn) {
         PostgreSQLDatabase.conn = conn;
 
         try {
@@ -33,8 +34,10 @@ public class PostgreSQLDatabase {
             URI uri = new URI(cleanJdbcUrl);
             PostgreSQLDatabase.databaseHost = uri.getHost();
             PostgreSQLDatabase.databasePort = uri.getPort() == -1 ? 5432 : uri.getPort();
-        } catch (Exception e) {
-            throw new SQLException("Unable to get databaseHost and/or databasePort from Connection", e);
+        } catch (SQLException e) {
+            throw new IllegalStateException("Unable to get DatabaseMetadata from Connection", e);
+        } catch (URISyntaxException e) {
+            throw new IllegalStateException("Unable to parse JDBC URI for Database Connection", e);
         }
     }
 
@@ -45,7 +48,7 @@ public class PostgreSQLDatabase {
         try {
             statement.execute(query);
         } catch (SQLException e) {
-            logger.error(e.toString());
+            logger.error("Error while executing SQL UPDATE query '" + query + "'", e);
         } finally {
             statement.close();
         }
@@ -58,14 +61,14 @@ public class PostgreSQLDatabase {
             ResultSet result = statement.executeQuery(query);
             return getResultMapFromResultSet(result);
         } catch (SQLException e) {
-            logger.error(e.toString());
+            logger.error("Error while executing SQL SELECT query '" + query + "'", e);
             return null;
         }
     }
 
     public static void executePreparedUpdate(String query, Map<Integer, String> parameterMap) throws SQLException {
         if(parameterMap == null) {
-            throw new SQLException("parameterMap cannot be empty");
+            throw new IllegalStateException("parameterMap cannot be null");
         }
 
         PreparedStatement preparedStatement = conn.prepareStatement(query);
@@ -77,7 +80,7 @@ public class PostgreSQLDatabase {
         try {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            logger.error(e.toString());
+            logger.error("Error while executing SQL prepared UPDATE query '" + query + "'", e);
         } finally {
             preparedStatement.close();
         }
@@ -85,7 +88,7 @@ public class PostgreSQLDatabase {
 
     public static Map<String, String> executePreparedSelect(String query, Map<Integer, String> parameterMap) throws SQLException {
         if(parameterMap == null) {
-            throw new SQLException("parameterMap cannot be empty");
+            throw new IllegalStateException("parameterMap cannot be null");
         }
 
         PreparedStatement preparedStatement = conn.prepareStatement(query);
@@ -98,7 +101,7 @@ public class PostgreSQLDatabase {
             ResultSet result = preparedStatement.executeQuery();
             return getResultMapFromResultSet(result);
         } catch (SQLException e) {
-            logger.error(e.toString());
+            logger.error("Error while executing SQL prepared SELECT query '" + query + "'", e);
             return null;
         }
     }
