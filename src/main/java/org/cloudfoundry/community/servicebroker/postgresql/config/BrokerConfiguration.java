@@ -15,16 +15,6 @@
  */
 package org.cloudfoundry.community.servicebroker.postgresql.config;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.cloudfoundry.community.servicebroker.config.BrokerApiVersionConfig;
 import org.cloudfoundry.community.servicebroker.model.Catalog;
 import org.cloudfoundry.community.servicebroker.model.Plan;
@@ -37,8 +27,15 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Configuration
 @ComponentScan(basePackages = "org.cloudfoundry.community.servicebroker", excludeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = BrokerApiVersionConfig.class) })
@@ -64,24 +61,24 @@ public class BrokerConfiguration {
             createServiceTable.execute(serviceTable);
             return conn;
         } catch (SQLException e) {
-            logger.error(e.toString());
+            logger.error("Error while creating initial 'service' table", e);
             return null;
         }
     }
 
     @Bean
-    public Catalog catalog() throws JsonParseException, JsonMappingException, IOException {
+    public Catalog catalog() throws IOException {
         ServiceDefinition serviceDefinition = new ServiceDefinition("pg", "PostgreSQL",
                 "PostgreSQL on shared instance.", true, getPlans(), getTags(), getServiceDefinitionMetadata(),
                 Arrays.asList("syslog_drain"), null);
         return new Catalog(Arrays.asList(serviceDefinition));
     }
 
-    private List<String> getTags() {
+    private static List<String> getTags() {
         return Arrays.asList("PostgreSQL", "Database storage");
     }
 
-    private Map<String, Object> getServiceDefinitionMetadata() {
+    private static Map<String, Object> getServiceDefinitionMetadata() {
         Map<String, Object> sdMetadata = new HashMap<String, Object>();
         sdMetadata.put("displayName", "PostgreSQL");
         sdMetadata.put("imageUrl", "https://wiki.postgresql.org/images/3/30/PostgreSQL_logo.3colors.120x120.png");
@@ -92,19 +89,19 @@ public class BrokerConfiguration {
         return sdMetadata;
     }
 
-    private List<Plan> getPlans() {
+    private static List<Plan> getPlans() {
         Plan basic = new Plan("postgresql-basic-plan", "Basic PostgreSQL Plan",
                 "A PG plan providing a single database on a shared instance with limited storage.", getBasicPlanMetadata());
         return Arrays.asList(basic);
     }
 
-    private Map<String, Object> getBasicPlanMetadata() {
+    private static Map<String, Object> getBasicPlanMetadata() {
         Map<String, Object> planMetadata = new HashMap<String, Object>();
         planMetadata.put("bullets", getBasicPlanBullets());
         return planMetadata;
     }
 
-    private List<String> getBasicPlanBullets() {
+    private static List<String> getBasicPlanBullets() {
         return Arrays.asList("Single PG database", "Limited storage", "Shared instance");
     }
 }

@@ -50,20 +50,22 @@ public class PostgreSQLServiceInstanceService implements ServiceInstanceService 
             db.createDatabaseForInstance(serviceInstanceId, service.getId(), planId, organizationGuid, spaceGuid);
             role.createRoleForInstance(serviceInstanceId);
         } catch (SQLException e) {
+            logger.error("Error while creating service instance '" + serviceInstanceId + "'", e);
             throw new ServiceBrokerException(e.getMessage());
         }
         return new ServiceInstance(serviceInstanceId, service.getId(), planId, organizationGuid, spaceGuid, null);
     }
 
     @Override
-    public ServiceInstance deleteServiceInstance(String id, String serviceId, String planId)
+    public ServiceInstance deleteServiceInstance(String serviceInstanceId, String serviceId, String planId)
             throws ServiceBrokerException {
-        ServiceInstance instance = getServiceInstance(id);
+        ServiceInstance instance = getServiceInstance(serviceInstanceId);
 
         try {
-            db.deleteDatabase(id);
-            role.deleteRole(id);
+            db.deleteDatabase(serviceInstanceId);
+            role.deleteRole(serviceInstanceId);
         } catch (SQLException e) {
+            logger.error("Error while deleting service instance '" + serviceInstanceId + "'", e);
             throw new ServiceBrokerException(e.getMessage());
         }
         return instance;
@@ -79,7 +81,7 @@ public class PostgreSQLServiceInstanceService implements ServiceInstanceService 
         try {
             return db.findServiceInstance(id);
         } catch (SQLException e) {
-            logger.error(e.toString());
+            logger.error("Error while finding service instance '" + id + "'", e);
             return null;
         }
     }
