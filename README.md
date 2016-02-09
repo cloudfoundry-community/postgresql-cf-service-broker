@@ -8,7 +8,7 @@ The broker currently publishes a single service and plan for provisioning Postgr
 
 The broker uses a PostgreSQL table for it's meta data. It does not maintain an internal database so it has no dependencies besides PostgreSQL.
 
-Capability with the Cloud Foundry service broker API is indicated by the project version number. For example, version 2.3.0 is based off the 2.3 version of the broker API.
+Capability with the Cloud Foundry service broker API is indicated by the project version number. For example, version 2.4.0 is based off the 2.4 version of the broker API.
 
 ## Running
 
@@ -17,7 +17,7 @@ Simply run the JAR file and provide a PostgreSQL jdbc url via the `MASTER_JDBC_U
 ### Locally
 
 ```
-mvn package && MASTER_JDBC_URL=jdbcurl java -jar target/postgresql-cf-service-broker-2.3.0-SNAPSHOT.jar
+mvn package && MASTER_JDBC_URL=jdbcurl java -jar target/postgresql-cf-service-broker-2.4.0-SNAPSHOT.jar
 ```
 
 ### In Cloud Foundry
@@ -40,7 +40,7 @@ cf bind-running-security-group postgresql-service
 
 Build the package with `mvn package` then push it out:
 ```
-cf push postgresql-cf-service-broker -p target/postgresql-cf-service-broker-2.3.0-SNAPSHOT.jar --no-start
+cf push postgresql-cf-service-broker -p target/postgresql-cf-service-broker-2.4.0-SNAPSHOT.jar --no-start
 ```
 
 Export the following environment variables:
@@ -70,7 +70,11 @@ cf enable-service-access PostgreSQL -p "Basic PostgreSQL Plan" -o ORG
 ### Locally
 
 You need to have a running PostgreSQL 9.x instance for this to work locally.
-First, edit ```MASTER_JDBC_URL``` in ```src/test/resources/application.properties``` to match your local PostgreSQL 9.x configuration.
+To create an PostgreSQL database matching the ```MASTER_JDBC_URL``` in ```src/test/resources/application.properties```:
+```
+docker run  -p 5432:5432/tcp --name testpostgres --rm -e POSTGRES_DB=travis_ci_test -e  POSTGRES_PASSWORD= -e POSTGRES_USER=postgres postgres
+```
+
 Then run:
 ```
 mvn test
