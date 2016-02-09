@@ -126,8 +126,6 @@ public class PostgreSQLServiceBrokerV2IntegrationTests extends ServiceBrokerV2In
         ValidatableResponse response = given().auth().basic(username, password).header(apiVersionHeader).request().contentType(ContentType.JSON).body(request_body).when().put(createBindingPath).then().statusCode(HttpStatus.SC_CREATED);
 
         response.body("credentials.uri", containsString("postgres://" + instanceId));
-        // the only part of the string we can not predict and/or verify is the password in the postgres string
-        response.body("credentials.uri", containsString("@localhost:5432/"+ instanceId));
         response.body("syslog_drain_url", is(nullValue()));
     }
 
