@@ -2,6 +2,7 @@ package org.cloudfoundry.community.servicebroker;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Header;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -66,6 +67,10 @@ public abstract class ServiceBrokerV2IntegrationTestBase {
 
     protected final String createOrRemoveBindingBasePath = "/v2/service_instances/%s/service_bindings/%s";
 
+    protected final Header apiVersionHeader = new Header("X-Broker-Api-Version", BROKER_API_VERSION);
+
+    public static final String BROKER_API_VERSION = "2.4";
+
     @Before
     public void setUp() throws Exception {
         RestAssured.port = port;
@@ -91,7 +96,7 @@ public abstract class ServiceBrokerV2IntegrationTestBase {
 
     @Test
     public void case1_fetchCatalogSucceedsWithCredentials() throws Exception {
-        given().auth().basic(username, password).when().get(fetchCatalogPath).then().statusCode(HttpStatus.SC_OK);
+        given().auth().basic(username, password).header(apiVersionHeader).when().get(fetchCatalogPath).then().statusCode(HttpStatus.SC_OK);
     }
 
     /**
@@ -116,7 +121,7 @@ public abstract class ServiceBrokerV2IntegrationTestBase {
                 "  \"space_guid\":        \"" + spaceGuid + "\"\n" +
                 "}";
 
-        given().auth().basic(username, password).request().contentType(ContentType.JSON).body(request_body).when().put(provisionInstancePath).then().statusCode(HttpStatus.SC_CREATED);
+        given().auth().basic(username, password).header(apiVersionHeader).request().contentType(ContentType.JSON).body(request_body).when().put(provisionInstancePath).then().statusCode(HttpStatus.SC_CREATED);
     }
 
     /**
@@ -140,7 +145,7 @@ public abstract class ServiceBrokerV2IntegrationTestBase {
                 "  \"app_guid\":     \"" + appGuid + "\"\n" +
                 "}";
 
-        given().auth().basic(username, password).request().contentType(ContentType.JSON).body(request_body).when().put(createBindingPath).then().statusCode(HttpStatus.SC_CREATED);
+        given().auth().basic(username, password).header(apiVersionHeader).request().contentType(ContentType.JSON).body(request_body).when().put(createBindingPath).then().statusCode(HttpStatus.SC_CREATED);
     }
 
     /**
@@ -158,7 +163,7 @@ public abstract class ServiceBrokerV2IntegrationTestBase {
     @Test
     public void case4_removeBindingSucceedsWithCredentials() throws Exception {
         String removeBindingPath = String.format(createOrRemoveBindingBasePath, instanceId, serviceId) + "?service_id=" + serviceId + "&plan_id=" + planId;
-        given().auth().basic(username, password).when().delete(removeBindingPath).then().statusCode(HttpStatus.SC_OK);
+        given().auth().basic(username, password).header(apiVersionHeader).when().delete(removeBindingPath).then().statusCode(HttpStatus.SC_OK);
     }
 
     /**
@@ -176,6 +181,6 @@ public abstract class ServiceBrokerV2IntegrationTestBase {
     @Test
     public void case5_removeInstanceSucceedsWithCredentials() throws Exception {
         String removeInstancePath = String.format(provisionOrRemoveInstanceBasePath, instanceId) + "?service_id=" + serviceId + "&plan_id=" + planId;
-        given().auth().basic(username, password).when().delete(removeInstancePath).then().statusCode(HttpStatus.SC_OK);
+        given().auth().basic(username, password).header(apiVersionHeader).when().delete(removeInstancePath).then().statusCode(HttpStatus.SC_OK);
     }
 }

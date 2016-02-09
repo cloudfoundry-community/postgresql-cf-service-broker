@@ -16,9 +16,13 @@
 package org.cloudfoundry.community.servicebroker.postgresql.service;
 
 import org.cloudfoundry.community.servicebroker.exception.ServiceBrokerException;
+import org.cloudfoundry.community.servicebroker.exception.ServiceInstanceDoesNotExistException;
 import org.cloudfoundry.community.servicebroker.exception.ServiceInstanceExistsException;
-import org.cloudfoundry.community.servicebroker.model.ServiceDefinition;
+import org.cloudfoundry.community.servicebroker.exception.ServiceInstanceUpdateNotSupportedException;
+import org.cloudfoundry.community.servicebroker.model.CreateServiceInstanceRequest;
+import org.cloudfoundry.community.servicebroker.model.DeleteServiceInstanceRequest;
 import org.cloudfoundry.community.servicebroker.model.ServiceInstance;
+import org.cloudfoundry.community.servicebroker.model.UpdateServiceInstanceRequest;
 import org.cloudfoundry.community.servicebroker.service.ServiceInstanceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
-import java.util.List;
 
 @Service
 public class PostgreSQLServiceInstanceService implements ServiceInstanceService {
@@ -44,21 +47,27 @@ public class PostgreSQLServiceInstanceService implements ServiceInstanceService 
     }
 
     @Override
-    public ServiceInstance createServiceInstance(ServiceDefinition service, String serviceInstanceId, String planId,
-            String organizationGuid, String spaceGuid) throws ServiceInstanceExistsException, ServiceBrokerException {
+    public ServiceInstance createServiceInstance(CreateServiceInstanceRequest createServiceInstanceRequest)
+            throws ServiceInstanceExistsException, ServiceBrokerException {
+        String serviceInstanceId = createServiceInstanceRequest.getServiceInstanceId();
+        String serviceId = createServiceInstanceRequest.getServiceDefinitionId();
+        String planId = createServiceInstanceRequest.getPlanId();
+        String organizationGuid = createServiceInstanceRequest.getOrganizationGuid();
+        String spaceGuid = createServiceInstanceRequest.getSpaceGuid();
         try {
-            db.createDatabaseForInstance(serviceInstanceId, service.getId(), planId, organizationGuid, spaceGuid);
+            db.createDatabaseForInstance(serviceInstanceId, serviceId, planId, organizationGuid, spaceGuid);
             role.createRoleForInstance(serviceInstanceId);
         } catch (SQLException e) {
             logger.error("Error while creating service instance '" + serviceInstanceId + "'", e);
             throw new ServiceBrokerException(e.getMessage());
         }
-        return new ServiceInstance(serviceInstanceId, service.getId(), planId, organizationGuid, spaceGuid, null);
+        return new ServiceInstance(createServiceInstanceRequest);
     }
 
     @Override
-    public ServiceInstance deleteServiceInstance(String serviceInstanceId, String serviceId, String planId)
+    public ServiceInstance deleteServiceInstance(DeleteServiceInstanceRequest deleteServiceInstanceRequest)
             throws ServiceBrokerException {
+        String serviceInstanceId = deleteServiceInstanceRequest.getServiceInstanceId();
         ServiceInstance instance = getServiceInstance(serviceInstanceId);
 
         try {
@@ -72,8 +81,9 @@ public class PostgreSQLServiceInstanceService implements ServiceInstanceService 
     }
 
     @Override
-    public List<ServiceInstance> getAllServiceInstances() {
-        return db.getAllServiceInstances();
+    public ServiceInstance updateServiceInstance(UpdateServiceInstanceRequest updateServiceInstanceRequest)
+            throws ServiceInstanceUpdateNotSupportedException, ServiceBrokerException, ServiceInstanceDoesNotExistException {
+        throw new IllegalStateException("Not implemented");
     }
 
     @Override

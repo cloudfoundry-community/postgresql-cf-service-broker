@@ -65,7 +65,7 @@ public class PostgreSQLServiceBrokerV2IntegrationTests extends ServiceBrokerV2In
     @Test
     public void case1_fetchCatalogSucceedsWithCredentials() throws Exception {
         // same as super code, but we need the response here
-        ValidatableResponse response = given().auth().basic(username, password).when().get(fetchCatalogPath).then().statusCode(HttpStatus.SC_OK);
+        ValidatableResponse response = given().auth().basic(username, password).header(apiVersionHeader).when().get(fetchCatalogPath).then().statusCode(HttpStatus.SC_OK);
 
         BrokerConfiguration brokerConfiguration = new BrokerConfiguration();
         ServiceDefinition serviceDefinition = brokerConfiguration.catalog().getServiceDefinitions().get(0);
@@ -123,7 +123,7 @@ public class PostgreSQLServiceBrokerV2IntegrationTests extends ServiceBrokerV2In
                 "  \"app_guid\":     \"" + appGuid + "\"\n" +
                 "}";
 
-        ValidatableResponse response = given().auth().basic(username, password).request().contentType(ContentType.JSON).body(request_body).when().put(createBindingPath).then().statusCode(HttpStatus.SC_CREATED);
+        ValidatableResponse response = given().auth().basic(username, password).header(apiVersionHeader).request().contentType(ContentType.JSON).body(request_body).when().put(createBindingPath).then().statusCode(HttpStatus.SC_CREATED);
 
         response.body("credentials.uri", containsString("postgres://" + instanceId));
         // the only part of the string we can not predict and/or verify is the password in the postgres string
@@ -142,7 +142,7 @@ public class PostgreSQLServiceBrokerV2IntegrationTests extends ServiceBrokerV2In
     public void case4_removeBindingSucceedsWithCredentials() throws Exception {
         // same as super code, but we need the response here
         String removeBindingPath = String.format(createOrRemoveBindingBasePath, instanceId, serviceId) + "?service_id=" + serviceId + "&plan_id=" + planId;
-        ValidatableResponse response = given().auth().basic(username, password).when().delete(removeBindingPath).then().statusCode(HttpStatus.SC_OK);
+        ValidatableResponse response = given().auth().basic(username, password).header(apiVersionHeader).when().delete(removeBindingPath).then().statusCode(HttpStatus.SC_OK);
 
         // response body is empty json
         response.body(equalTo("{}"));
