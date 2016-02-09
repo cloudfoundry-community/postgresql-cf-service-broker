@@ -15,6 +15,7 @@
  */
 package org.cloudfoundry.community.servicebroker.postgresql.service;
 
+import org.cloudfoundry.community.servicebroker.model.CreateServiceInstanceRequest;
 import org.cloudfoundry.community.servicebroker.model.ServiceInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +83,8 @@ public class Database {
         String planId = result.get("planid");
         String spaceGuid = result.get("spaceguid");
 
-        return new ServiceInstance(instanceId, serviceDefinitionId, planId, organizationGuid, spaceGuid, null);
+        CreateServiceInstanceRequest wrapper = new CreateServiceInstanceRequest(serviceDefinitionId, planId, organizationGuid, spaceGuid).withServiceInstanceId(instanceId);
+        return new ServiceInstance(wrapper);
     }
 
     // TODO needs to be implemented

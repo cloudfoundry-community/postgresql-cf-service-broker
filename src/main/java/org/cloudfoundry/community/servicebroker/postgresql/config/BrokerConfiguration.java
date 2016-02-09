@@ -68,9 +68,8 @@ public class BrokerConfiguration {
 
     @Bean
     public Catalog catalog() throws IOException {
-        ServiceDefinition serviceDefinition = new ServiceDefinition("pg", "PostgreSQL",
-                "PostgreSQL on shared instance.", true, getPlans(), getTags(), getServiceDefinitionMetadata(),
-                Arrays.asList("syslog_drain"), null);
+        ServiceDefinition serviceDefinition = new ServiceDefinition("pg", "PostgreSQL", "PostgreSQL on shared instance.",
+                true, false, getPlans(), getTags(), getServiceDefinitionMetadata(), Arrays.asList("syslog_drain"), null);
         return new Catalog(Arrays.asList(serviceDefinition));
     }
 
