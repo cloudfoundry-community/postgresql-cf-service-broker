@@ -35,46 +35,53 @@ public class PostgreSQLServiceInstanceBindingService implements ServiceInstanceB
 
     private static final Logger logger = LoggerFactory.getLogger(PostgreSQLServiceInstanceBindingService.class);
 
-    private final Role role;
+    private final PostgreSQLDatabase postgresDB;
 
     @Autowired
-    public PostgreSQLServiceInstanceBindingService(Role role) {
-        this.role = role;
+    public PostgreSQLServiceInstanceBindingService(PostgreSQLDatabase postgresDB) {
+        this.postgresDB = postgresDB;
     }
 
     @Override
     public CreateServiceInstanceBindingResponse createServiceInstanceBinding(CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest)
             throws ServiceInstanceBindingExistsException, ServiceBrokerException {
+
         String bindingId = createServiceInstanceBindingRequest.getBindingId();
         String serviceInstanceId = createServiceInstanceBindingRequest.getServiceInstanceId();
         String appGuid = createServiceInstanceBindingRequest.getBoundAppGuid();
-        String passwd = "";
 
         try {
-            passwd = this.role.bindRoleToDatabase(serviceInstanceId);
-        } catch (SQLException e) {
+
+            String dbURL = postgresDB.bindRoleToDatabase(serviceInstanceId);
+            Map<String, Object> credentials = new HashMap<String, Object>();
+            credentials.put("uri", dbURL);
+            //bindingId, serviceInstanceId, credentials, null, appGuid
+            System.out.println("{\n" +
+                    "  \"plan_id\":      \"" + bindingId + "\",\n" +
+                    "  \"service_id\":   \"" + serviceInstanceId + "\",\n" +
+                    "  \"app_guid\":     \"" + appGuid + "\"\n" +
+                    "}");
+            System.out.println(dbURL);
+
+            return new CreateServiceInstanceAppBindingResponse().withCredentials(credentials);
+        } catch (Exception e) {
             logger.error("Error while creating service instance binding '" + bindingId + "'", e);
             throw new ServiceBrokerException(e.getMessage());
         }
-
-        String dbURL = String.format("postgres://%s:%s@%s:%d/%s", serviceInstanceId, passwd, PostgreSQLDatabase.getDatabaseHost(), PostgreSQLDatabase.getDatabasePort(), serviceInstanceId);
-
-        Map<String, Object> credentials = new HashMap<String, Object>();
-        credentials.put("uri", dbURL);
-        //bindingId, serviceInstanceId, credentials, null, appGuid
-        return new CreateServiceInstanceAppBindingResponse().withCredentials(credentials);
 
     }
 
     @Override
     public void deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest deleteServiceInstanceBindingRequest) throws ServiceBrokerException {
-        String serviceInstanceId = deleteServiceInstanceBindingRequest.getBindingId();
+        String serviceInstanceId = deleteServiceInstanceBindingRequest.getServiceInstanceId();
         String bindingId = deleteServiceInstanceBindingRequest.getBindingId();
         try {
-            this.role.unBindRoleFromDatabase(serviceInstanceId);
+            postgresDB.unBindRoleFromDatabase(serviceInstanceId);
         } catch (SQLException e) {
             logger.error("Error while deleting service instance binding '" + bindingId + "'", e);
-            throw new ServiceBrokerException(e.getMessage());
+//            throw new ServiceBrokerException(e.getMessage());
+        } catch(Exception e){
+            e.printStackTrace();
         }
     }
 
