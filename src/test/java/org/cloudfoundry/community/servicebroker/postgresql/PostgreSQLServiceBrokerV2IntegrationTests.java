@@ -6,7 +6,6 @@ import com.jayway.restassured.response.ValidatableResponse;
 import org.apache.http.HttpStatus;
 import org.cloudfoundry.community.servicebroker.ServiceBrokerV2IntegrationTestBase;
 
-import org.cloudfoundry.community.servicebroker.postgresql.config.Application;
 import org.cloudfoundry.community.servicebroker.postgresql.config.BrokerConfiguration;
 import org.cloudfoundry.community.servicebroker.postgresql.service.PostgreSQLDatabase;
 import org.junit.Before;

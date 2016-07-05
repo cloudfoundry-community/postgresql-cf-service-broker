@@ -1,14 +1,26 @@
 package org.cloudfoundry.community.servicebroker.postgresql.model;
 
+
+
 /**
  * Created by cq on 4/7/16.
  */
+
 public class PGServiceInstance {
 
+
     private String serviceInstanceId;
-    private String serviceId;
+
+
+    private String serviceDefinitionId;
+
+
     private String planId;
+
+
     private String organizationGuid;
+
+
     private String spaceGuid;
 
     public String getServiceInstanceId() {
@@ -19,12 +31,12 @@ public class PGServiceInstance {
         this.serviceInstanceId = serviceInstanceId;
     }
 
-    public String getServiceId() {
-        return serviceId;
+    public String getServiceDefinitionId() {
+        return serviceDefinitionId;
     }
 
-    public void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
+    public void setServiceDefinitionId(String serviceDefinitionId) {
+        this.serviceDefinitionId = serviceDefinitionId;
     }
 
     public String getPlanId() {

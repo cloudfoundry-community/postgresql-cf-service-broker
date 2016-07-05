@@ -48,10 +48,6 @@ public abstract class ServiceBrokerV2IntegrationTestBase {
     @Value("${service_id}")
     protected String serviceId;
 
-    @Value("${service_id_2}")
-    protected String serviceId2;
-
-
     @Value("${plan_id}")
     protected String planId;
 
@@ -120,7 +116,7 @@ public abstract class ServiceBrokerV2IntegrationTestBase {
         serviceId = "pg";
         String provisionInstancePath = String.format(provisionOrRemoveInstanceBasePath, instanceId);
         String request_body = "{\n" +
-                "  \"service_id\":        \"" + serviceId2 + "\",\n" +
+                "  \"service_id\":        \"" + serviceId + "\",\n" +
                 "  \"plan_id\":           \"" + planId + "\",\n" +
                 "  \"organization_guid\": \"" + organizationGuid + "\",\n" +
                 "  \"space_guid\":        \"" + spaceGuid + "\"\n" +

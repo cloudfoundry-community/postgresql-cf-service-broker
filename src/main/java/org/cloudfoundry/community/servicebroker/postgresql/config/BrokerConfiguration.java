@@ -47,6 +47,8 @@ public class BrokerConfiguration {
     @Value("${MASTER_JDBC_URL}")
     private String jdbcUrl;
 
+
+
     @Bean
     public Connection jdbc() {
         try {
@@ -79,7 +81,7 @@ public class BrokerConfiguration {
     }
 
     private static Map<String, Object> getServiceDefinitionMetadata() {
-        Map<String, Object> sdMetadata = new HashMap<String, Object>();
+        Map<String, Object> sdMetadata = new HashMap<>();
         sdMetadata.put("displayName", "PostgreSQL");
         sdMetadata.put("imageUrl", "https://wiki.postgresql.org/images/3/30/PostgreSQL_logo.3colors.120x120.png");
         sdMetadata.put("longDescription", "PostgreSQL Service");
@@ -96,7 +98,7 @@ public class BrokerConfiguration {
     }
 
     private static Map<String, Object> getBasicPlanMetadata() {
-        Map<String, Object> planMetadata = new HashMap<String, Object>();
+        Map<String, Object> planMetadata = new HashMap<>();
         planMetadata.put("bullets", getBasicPlanBullets());
         return planMetadata;
     }
