@@ -15,15 +15,15 @@
  */
 package org.cloudfoundry.community.servicebroker.postgresql.service;
 
-import org.cloudfoundry.community.servicebroker.exception.ServiceBrokerException;
-import org.cloudfoundry.community.servicebroker.exception.ServiceInstanceBindingExistsException;
-import org.cloudfoundry.community.servicebroker.model.CreateServiceInstanceBindingRequest;
-import org.cloudfoundry.community.servicebroker.model.DeleteServiceInstanceBindingRequest;
-import org.cloudfoundry.community.servicebroker.model.ServiceInstanceBinding;
-import org.cloudfoundry.community.servicebroker.service.ServiceInstanceBindingService;
+
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
+import org.springframework.cloud.servicebroker.exception.ServiceInstanceBindingExistsException;
+import org.springframework.cloud.servicebroker.model.*;
+import org.springframework.cloud.servicebroker.service.ServiceInstanceBindingService;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
@@ -43,11 +43,11 @@ public class PostgreSQLServiceInstanceBindingService implements ServiceInstanceB
     }
 
     @Override
-    public ServiceInstanceBinding createServiceInstanceBinding(CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest)
+    public CreateServiceInstanceBindingResponse createServiceInstanceBinding(CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest)
             throws ServiceInstanceBindingExistsException, ServiceBrokerException {
         String bindingId = createServiceInstanceBindingRequest.getBindingId();
         String serviceInstanceId = createServiceInstanceBindingRequest.getServiceInstanceId();
-        String appGuid = createServiceInstanceBindingRequest.getAppGuid();
+        String appGuid = createServiceInstanceBindingRequest.getBoundAppGuid();
         String passwd = "";
 
         try {
@@ -61,14 +61,14 @@ public class PostgreSQLServiceInstanceBindingService implements ServiceInstanceB
 
         Map<String, Object> credentials = new HashMap<String, Object>();
         credentials.put("uri", dbURL);
+        //bindingId, serviceInstanceId, credentials, null, appGuid
+        return new CreateServiceInstanceAppBindingResponse().withCredentials(credentials);
 
-        return new ServiceInstanceBinding(bindingId, serviceInstanceId, credentials, null, appGuid);
     }
 
     @Override
-    public ServiceInstanceBinding deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest deleteServiceInstanceBindingRequest)
-            throws ServiceBrokerException {
-        String serviceInstanceId = deleteServiceInstanceBindingRequest.getInstance().getServiceInstanceId();
+    public void deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest deleteServiceInstanceBindingRequest) throws ServiceBrokerException {
+        String serviceInstanceId = deleteServiceInstanceBindingRequest.getBindingId();
         String bindingId = deleteServiceInstanceBindingRequest.getBindingId();
         try {
             this.role.unBindRoleFromDatabase(serviceInstanceId);
@@ -76,6 +76,7 @@ public class PostgreSQLServiceInstanceBindingService implements ServiceInstanceB
             logger.error("Error while deleting service instance binding '" + bindingId + "'", e);
             throw new ServiceBrokerException(e.getMessage());
         }
-        return new ServiceInstanceBinding(bindingId, serviceInstanceId, null, null, null);
     }
+
+
 }

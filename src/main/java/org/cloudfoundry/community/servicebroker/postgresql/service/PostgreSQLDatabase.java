@@ -27,6 +27,8 @@ public class PostgreSQLDatabase {
         PostgreSQLDatabase.conn = conn;
 
         try {
+
+            if (conn == null) throw new Exception("connection is NULL");
             String jdbcUrl = conn.getMetaData().getURL();
             // Remove "jdbc:" prefix from the connection JDBC URL to create an URI out of it.
             String cleanJdbcUrl = jdbcUrl.replace("jdbc:", "");
@@ -38,6 +40,9 @@ public class PostgreSQLDatabase {
             throw new IllegalStateException("Unable to get DatabaseMetadata from Connection", e);
         } catch (URISyntaxException e) {
             throw new IllegalStateException("Unable to parse JDBC URI for Database Connection", e);
+        } catch (Exception e){
+            logger.info("conn: " + e.getMessage());
+            logger.info(">>>>>>>>>>>>>>>>connection issue<<<<<<<<<<<");
         }
     }
 

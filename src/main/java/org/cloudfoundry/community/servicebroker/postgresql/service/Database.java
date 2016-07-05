@@ -15,15 +15,18 @@
  */
 package org.cloudfoundry.community.servicebroker.postgresql.service;
 
-import org.cloudfoundry.community.servicebroker.model.CreateServiceInstanceRequest;
-import org.cloudfoundry.community.servicebroker.model.ServiceInstance;
+
+import org.cloudfoundry.community.servicebroker.postgresql.model.PGServiceInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.springframework.cloud.servicebroker.model.ServiceInstance;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.Collections;
 import java.util.HashMap;
+
 import java.util.List;
 import java.util.Map;
 
@@ -70,7 +73,7 @@ public class Database {
         PostgreSQLDatabase.executePreparedUpdate("DELETE FROM service WHERE serviceinstanceid=?", parameterMap);
     }
 
-    public ServiceInstance findServiceInstance(String instanceId) throws SQLException {
+    public PGServiceInstance findServiceInstance(String instanceId) throws SQLException {
         Utils.checkValidUUID(instanceId);
 
         Map<Integer, String> parameterMap = new HashMap<Integer, String>();
@@ -82,9 +85,12 @@ public class Database {
         String organizationGuid = result.get("organizationguid");
         String planId = result.get("planid");
         String spaceGuid = result.get("spaceguid");
-
-        CreateServiceInstanceRequest wrapper = new CreateServiceInstanceRequest(serviceDefinitionId, planId, organizationGuid, spaceGuid).withServiceInstanceId(instanceId);
-        return new ServiceInstance(wrapper);
+        PGServiceInstance serviceInstance = new PGServiceInstance();
+        serviceInstance.setServiceInstanceId(serviceDefinitionId);
+        serviceInstance.setOrganizationGuid(organizationGuid);
+        serviceInstance.setPlanId(planId);
+        serviceInstance.setSpaceGuid(spaceGuid);
+        return serviceInstance;
     }
 
     // TODO needs to be implemented

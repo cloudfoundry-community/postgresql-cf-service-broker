@@ -15,13 +15,14 @@
  */
 package org.cloudfoundry.community.servicebroker.postgresql.config;
 
-import org.cloudfoundry.community.servicebroker.config.BrokerApiVersionConfig;
-import org.cloudfoundry.community.servicebroker.model.Catalog;
-import org.cloudfoundry.community.servicebroker.model.Plan;
-import org.cloudfoundry.community.servicebroker.model.ServiceDefinition;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.servicebroker.config.BrokerApiVersionConfig;
+import org.springframework.cloud.servicebroker.model.Catalog;
+import org.springframework.cloud.servicebroker.model.Plan;
+import org.springframework.cloud.servicebroker.model.ServiceDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;

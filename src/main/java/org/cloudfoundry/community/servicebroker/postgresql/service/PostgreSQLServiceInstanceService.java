@@ -15,18 +15,20 @@
  */
 package org.cloudfoundry.community.servicebroker.postgresql.service;
 
-import org.cloudfoundry.community.servicebroker.exception.ServiceBrokerException;
-import org.cloudfoundry.community.servicebroker.exception.ServiceInstanceDoesNotExistException;
-import org.cloudfoundry.community.servicebroker.exception.ServiceInstanceExistsException;
-import org.cloudfoundry.community.servicebroker.exception.ServiceInstanceUpdateNotSupportedException;
-import org.cloudfoundry.community.servicebroker.model.CreateServiceInstanceRequest;
-import org.cloudfoundry.community.servicebroker.model.DeleteServiceInstanceRequest;
-import org.cloudfoundry.community.servicebroker.model.ServiceInstance;
-import org.cloudfoundry.community.servicebroker.model.UpdateServiceInstanceRequest;
-import org.cloudfoundry.community.servicebroker.service.ServiceInstanceService;
+
+import org.cloudfoundry.community.servicebroker.postgresql.model.PGServiceInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
+
+import org.springframework.cloud.servicebroker.exception.ServiceInstanceDoesNotExistException;
+import org.springframework.cloud.servicebroker.exception.ServiceInstanceExistsException;
+
+import org.springframework.cloud.servicebroker.exception.ServiceInstanceUpdateNotSupportedException;
+import org.springframework.cloud.servicebroker.model.*;
+
+import org.springframework.cloud.servicebroker.service.ServiceInstanceService;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
@@ -47,52 +49,59 @@ public class PostgreSQLServiceInstanceService implements ServiceInstanceService 
     }
 
     @Override
-    public ServiceInstance createServiceInstance(CreateServiceInstanceRequest createServiceInstanceRequest)
+    public CreateServiceInstanceResponse createServiceInstance(CreateServiceInstanceRequest createServiceInstanceRequest)
             throws ServiceInstanceExistsException, ServiceBrokerException {
+
         String serviceInstanceId = createServiceInstanceRequest.getServiceInstanceId();
         String serviceId = createServiceInstanceRequest.getServiceDefinitionId();
         String planId = createServiceInstanceRequest.getPlanId();
         String organizationGuid = createServiceInstanceRequest.getOrganizationGuid();
         String spaceGuid = createServiceInstanceRequest.getSpaceGuid();
+
+
         try {
+
+//            PGServiceInstance instance = db.findServiceInstance(serviceInstanceId);
+//            if(instance!=null)
+//                throw new ServiceInstanceExistsException(createServiceInstanceRequest.getServiceInstanceId(), createServiceInstanceRequest.getServiceDefinitionId());
+
             db.createDatabaseForInstance(serviceInstanceId, serviceId, planId, organizationGuid, spaceGuid);
+
             role.createRoleForInstance(serviceInstanceId);
+
         } catch (SQLException e) {
             logger.error("Error while creating service instance '" + serviceInstanceId + "'", e);
             throw new ServiceBrokerException(e.getMessage());
         }
-        return new ServiceInstance(createServiceInstanceRequest);
+        return new CreateServiceInstanceResponse();
     }
 
     @Override
-    public ServiceInstance deleteServiceInstance(DeleteServiceInstanceRequest deleteServiceInstanceRequest)
-            throws ServiceBrokerException {
+    public GetLastServiceOperationResponse getLastOperation(GetLastServiceOperationRequest getLastServiceOperationRequest) {
+        return new GetLastServiceOperationResponse().withOperationState(OperationState.SUCCEEDED);
+    }
+
+    @Override
+    public DeleteServiceInstanceResponse deleteServiceInstance(DeleteServiceInstanceRequest deleteServiceInstanceRequest) {
         String serviceInstanceId = deleteServiceInstanceRequest.getServiceInstanceId();
-        ServiceInstance instance = getServiceInstance(serviceInstanceId);
 
         try {
+
             db.deleteDatabase(serviceInstanceId);
             role.deleteRole(serviceInstanceId);
+
         } catch (SQLException e) {
             logger.error("Error while deleting service instance '" + serviceInstanceId + "'", e);
             throw new ServiceBrokerException(e.getMessage());
         }
-        return instance;
+        return new DeleteServiceInstanceResponse();
     }
 
+
     @Override
-    public ServiceInstance updateServiceInstance(UpdateServiceInstanceRequest updateServiceInstanceRequest)
+    public UpdateServiceInstanceResponse updateServiceInstance(UpdateServiceInstanceRequest updateServiceInstanceRequest)
             throws ServiceInstanceUpdateNotSupportedException, ServiceBrokerException, ServiceInstanceDoesNotExistException {
         throw new IllegalStateException("Not implemented");
     }
 
-    @Override
-    public ServiceInstance getServiceInstance(String id) {
-        try {
-            return db.findServiceInstance(id);
-        } catch (SQLException e) {
-            logger.error("Error while finding service instance '" + id + "'", e);
-            return null;
-        }
-    }
 }
