@@ -54,19 +54,7 @@ public class PostgreSQLServiceInstanceService implements ServiceInstanceService 
         String organizationGuid = createServiceInstanceRequest.getOrganizationGuid();
         String spaceGuid = createServiceInstanceRequest.getSpaceGuid();
 
-        System.out.println("{\n" +
-                "  \"service_id\":        \"" + serviceId + "\",\n" +
-                "  \"plan_id\":           \"" + planId + "\",\n" +
-                "  \"organization_guid\": \"" + organizationGuid + "\",\n" +
-                "  \"space_guid\":        \"" + spaceGuid + "\"\n" +
-                "}");
-
         try {
-
-//            PGServiceInstance instance = postgresDB.findServiceInstance(serviceInstanceId);
-//            if(instance!=null)
-//                throw new ServiceInstanceExistsException(createServiceInstanceRequest.getServiceInstanceId(),
-// createServiceInstanceRequest.getServiceDefinitionId());
 
             postgresDB.createDatabaseForInstance(serviceInstanceId, serviceId, planId, organizationGuid, spaceGuid);
 

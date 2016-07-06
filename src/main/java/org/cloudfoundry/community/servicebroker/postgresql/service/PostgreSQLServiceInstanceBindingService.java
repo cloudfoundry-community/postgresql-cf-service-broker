@@ -55,15 +55,8 @@ public class PostgreSQLServiceInstanceBindingService implements ServiceInstanceB
             String dbURL = postgresDB.bindRoleToDatabase(serviceInstanceId);
             Map<String, Object> credentials = new HashMap<String, Object>();
             credentials.put("uri", dbURL);
-            //bindingId, serviceInstanceId, credentials, null, appGuid
-            System.out.println("{\n" +
-                    "  \"plan_id\":      \"" + bindingId + "\",\n" +
-                    "  \"service_id\":   \"" + serviceInstanceId + "\",\n" +
-                    "  \"app_guid\":     \"" + appGuid + "\"\n" +
-                    "}");
-            System.out.println(dbURL);
-
             return new CreateServiceInstanceAppBindingResponse().withCredentials(credentials);
+
         } catch (Exception e) {
             logger.error("Error while creating service instance binding '" + bindingId + "'", e);
             throw new ServiceBrokerException(e.getMessage());
