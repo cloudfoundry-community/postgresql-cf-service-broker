@@ -1,4 +1,12 @@
 ---
+timeout: 60
+instances: 1
+memory: 512M
+buildpack: java_buildpack
+env:
+    SPRING_PROFILES_ACTIVE: cloud
+    JAVA_OPTS: -Djava.security.password=password
+
 applications:
-  - name: postgresql-cf-service-broker
-    buildpack: java_buildpack
+- name: postgresql-cf-service-broker
+  path: target/postgresql-cf-service-broker-2.8.0-SNAPSHOT.jar

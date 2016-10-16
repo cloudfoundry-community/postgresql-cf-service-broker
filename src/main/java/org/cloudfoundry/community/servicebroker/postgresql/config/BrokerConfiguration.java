@@ -15,18 +15,23 @@
  */
 package org.cloudfoundry.community.servicebroker.postgresql.config;
 
-import org.cloudfoundry.community.servicebroker.config.BrokerApiVersionConfig;
-import org.cloudfoundry.community.servicebroker.model.Catalog;
-import org.cloudfoundry.community.servicebroker.model.Plan;
-import org.cloudfoundry.community.servicebroker.model.ServiceDefinition;
+
+import org.cloudfoundry.community.servicebroker.postgresql.service.PostgreSQLDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.servicebroker.config.BrokerApiVersionConfig;
+import org.springframework.cloud.servicebroker.model.Catalog;
+import org.springframework.cloud.servicebroker.model.Plan;
+import org.springframework.cloud.servicebroker.model.ServiceDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -38,7 +43,8 @@ import java.util.List;
 import java.util.Map;
 
 @Configuration
-@ComponentScan(basePackages = "org.cloudfoundry.community.servicebroker", excludeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = BrokerApiVersionConfig.class) })
+@ComponentScan(basePackages = "org.cloudfoundry.community.servicebroker",
+        excludeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = BrokerApiVersionConfig.class) })
 public class BrokerConfiguration {
 
     private static final Logger logger = LoggerFactory.getLogger(BrokerConfiguration.class);
@@ -46,24 +52,17 @@ public class BrokerConfiguration {
     @Value("${MASTER_JDBC_URL}")
     private String jdbcUrl;
 
+
     @Bean
-    public Connection jdbc() {
-        try {
-            Connection conn = DriverManager.getConnection(this.jdbcUrl);
+    public JdbcTemplate jdbcTemplate(){
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setUrl(this.jdbcUrl);
+        return new JdbcTemplate(dataSource);
+    }
 
-            String serviceTable = "CREATE TABLE IF NOT EXISTS service (serviceinstanceid varchar(200) not null default '',"
-                    + " servicedefinitionid varchar(200) not null default '',"
-                    + " planid varchar(200) not null default '',"
-                    + " organizationguid varchar(200) not null default '',"
-                    + " spaceguid varchar(200) not null default '')";
-
-            Statement createServiceTable = conn.createStatement();
-            createServiceTable.execute(serviceTable);
-            return conn;
-        } catch (SQLException e) {
-            logger.error("Error while creating initial 'service' table", e);
-            return null;
-        }
+    @Bean
+    public PostgreSQLDatabase postgreSQLDatabase(JdbcTemplate jdbcTemplate){
+        return new PostgreSQLDatabase(jdbcTemplate);
     }
 
     @Bean
@@ -78,7 +77,7 @@ public class BrokerConfiguration {
     }
 
     private static Map<String, Object> getServiceDefinitionMetadata() {
-        Map<String, Object> sdMetadata = new HashMap<String, Object>();
+        Map<String, Object> sdMetadata = new HashMap<>();
         sdMetadata.put("displayName", "PostgreSQL");
         sdMetadata.put("imageUrl", "https://wiki.postgresql.org/images/3/30/PostgreSQL_logo.3colors.120x120.png");
         sdMetadata.put("longDescription", "PostgreSQL Service");
@@ -95,7 +94,7 @@ public class BrokerConfiguration {
     }
 
     private static Map<String, Object> getBasicPlanMetadata() {
-        Map<String, Object> planMetadata = new HashMap<String, Object>();
+        Map<String, Object> planMetadata = new HashMap<>();
         planMetadata.put("bullets", getBasicPlanBullets());
         return planMetadata;
     }

@@ -67,9 +67,9 @@ public abstract class ServiceBrokerV2IntegrationTestBase {
 
     protected final String createOrRemoveBindingBasePath = "/v2/service_instances/%s/service_bindings/%s";
 
-    protected final Header apiVersionHeader = new Header("X-Broker-Api-Version", BROKER_API_VERSION);
+    protected final Header apiVersionHeader = new Header("X-Broker-API-Version", BROKER_API_VERSION);
 
-    public static final String BROKER_API_VERSION = "2.4";
+    public static final String BROKER_API_VERSION = "2.8";
 
     @Before
     public void setUp() throws Exception {
@@ -113,6 +113,7 @@ public abstract class ServiceBrokerV2IntegrationTestBase {
 
     @Test
     public void case2_provisionInstanceSucceedsWithCredentials() throws Exception {
+        serviceId = "pg";
         String provisionInstancePath = String.format(provisionOrRemoveInstanceBasePath, instanceId);
         String request_body = "{\n" +
                 "  \"service_id\":        \"" + serviceId + "\",\n" +
@@ -121,7 +122,17 @@ public abstract class ServiceBrokerV2IntegrationTestBase {
                 "  \"space_guid\":        \"" + spaceGuid + "\"\n" +
                 "}";
 
-        given().auth().basic(username, password).header(apiVersionHeader).request().contentType(ContentType.JSON).body(request_body).when().put(provisionInstancePath).then().statusCode(HttpStatus.SC_CREATED);
+        given()
+                .auth()
+                .basic(username, password)
+                .header(apiVersionHeader)
+                .request()
+                .contentType(ContentType.JSON)
+                .body(request_body)
+                .when()
+                .put(provisionInstancePath)
+                .then()
+                .statusCode(HttpStatus.SC_CREATED);
     }
 
     /**

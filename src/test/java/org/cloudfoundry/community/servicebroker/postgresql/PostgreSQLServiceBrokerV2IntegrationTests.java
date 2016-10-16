@@ -5,25 +5,25 @@ import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.ValidatableResponse;
 import org.apache.http.HttpStatus;
 import org.cloudfoundry.community.servicebroker.ServiceBrokerV2IntegrationTestBase;
-import org.cloudfoundry.community.servicebroker.model.Plan;
-import org.cloudfoundry.community.servicebroker.model.ServiceDefinition;
-import org.cloudfoundry.community.servicebroker.postgresql.config.Application;
+
 import org.cloudfoundry.community.servicebroker.postgresql.config.BrokerConfiguration;
 import org.cloudfoundry.community.servicebroker.postgresql.service.PostgreSQLDatabase;
-import org.junit.Before;
+
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.cloud.servicebroker.model.Plan;
+import org.springframework.cloud.servicebroker.model.ServiceDefinition;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.util.ArrayList;
+
+
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.*;
@@ -38,12 +38,15 @@ public class PostgreSQLServiceBrokerV2IntegrationTests extends ServiceBrokerV2In
 
     private Connection conn;
 
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        conn = DriverManager.getConnection(this.jdbcUrl);
-    }
+    @Autowired
+    private PostgreSQLDatabase postgreSQLDatabase;
+
+//    @Override
+//    @Before
+//    public void setUp() throws Exception {
+//        super.setUp();
+//        conn = DriverManager.getConnection(this.jdbcUrl);
+//    }
 
     /**
      * Sanity check, to make sure that the 'service' table required for this Service Broker is created.
@@ -68,6 +71,7 @@ public class PostgreSQLServiceBrokerV2IntegrationTests extends ServiceBrokerV2In
         ValidatableResponse response = given().auth().basic(username, password).header(apiVersionHeader).when().get(fetchCatalogPath).then().statusCode(HttpStatus.SC_OK);
 
         BrokerConfiguration brokerConfiguration = new BrokerConfiguration();
+
         ServiceDefinition serviceDefinition = brokerConfiguration.catalog().getServiceDefinitions().get(0);
 
         response.body("services[0].id", equalTo(serviceDefinition.getId()));
@@ -76,10 +80,7 @@ public class PostgreSQLServiceBrokerV2IntegrationTests extends ServiceBrokerV2In
         response.body("services[0].requires", equalTo(serviceDefinition.getRequires()));
         response.body("services[0].tags", equalTo(serviceDefinition.getTags()));
 
-        List<String> planIds = new ArrayList<String>();
-        for(Plan plan: serviceDefinition.getPlans()) {
-            planIds.add(plan.getId());
-        }
+        List<String> planIds = serviceDefinition.getPlans().stream().map(Plan::getId).collect(Collectors.toList());
         response.body("services[0].plans.id", equalTo(planIds));
     }
 
@@ -98,7 +99,7 @@ public class PostgreSQLServiceBrokerV2IntegrationTests extends ServiceBrokerV2In
         assertTrue(checkRoleExists(instanceId));
         assertTrue(checkRoleIsDatabaseOwner(instanceId, instanceId));
 
-        Map<String, String> serviceResult = PostgreSQLDatabase.executePreparedSelect("SELECT * FROM service WHERE serviceinstanceid = ?", ImmutableMap.of(1, instanceId));
+        Map<String, String> serviceResult = postgreSQLDatabase.executePreparedSelect("SELECT * FROM service WHERE serviceinstanceid = ?", ImmutableMap.of(1, instanceId));
         assertThat(serviceResult.get("organizationguid"), is(organizationGuid));
         assertThat(serviceResult.get("planid"), is(planId));
         assertThat(serviceResult.get("spaceguid"), is(spaceGuid));
@@ -161,32 +162,30 @@ public class PostgreSQLServiceBrokerV2IntegrationTests extends ServiceBrokerV2In
         assertFalse(checkRoleExists(instanceId));
         assertFalse(checkRoleIsDatabaseOwner(instanceId, instanceId));
 
-        Map<String, String> serviceResult = PostgreSQLDatabase.executePreparedSelect("SELECT * FROM service WHERE serviceinstanceid = ?", ImmutableMap.of(1, instanceId));
+        Map<String, String> serviceResult = postgreSQLDatabase.executePreparedSelect("SELECT * FROM service WHERE serviceinstanceid = ?", ImmutableMap.of(1, instanceId));
         assertTrue(serviceResult.isEmpty());
     }
 
     private boolean checkTableExists(String tableName) throws Exception {
-        DatabaseMetaData md = conn.getMetaData();
-        ResultSet rs = md.getTables(null, null, tableName, null);
 
-        // ResultSet.last() followed by ResultSet.getRow() will give you the row count
-        rs.last();
-        int rowCount = rs.getRow();
-        return rowCount == 1;
+        Map<String,String> result = postgreSQLDatabase.executePreparedSelect("select tablename from pg_catalog.pg_tables where tablename = ?", ImmutableMap.of(1, tableName));
+
+        return result.size() == 1;
     }
 
     private boolean checkDatabaseExists(String databaseName) throws Exception {
-        Map<String, String> pgDatabaseResult = PostgreSQLDatabase.executePreparedSelect("SELECT * FROM pg_catalog.pg_database WHERE datname = ?", ImmutableMap.of(1, databaseName));
+        Map<String, String> pgDatabaseResult = postgreSQLDatabase.executePreparedSelect("SELECT * FROM pg_catalog.pg_database WHERE datname = ?", ImmutableMap.of(1, databaseName));
         return pgDatabaseResult.size() > 0;
     }
 
     private boolean checkRoleExists(String roleName) throws Exception {
-        Map<String, String> pgRoleResult = PostgreSQLDatabase.executePreparedSelect("SELECT * FROM pg_catalog.pg_roles WHERE rolname = ?", ImmutableMap.of(1, roleName));
+        Map<String, String> pgRoleResult = postgreSQLDatabase.executePreparedSelect("SELECT * FROM pg_catalog.pg_roles WHERE rolname = ?", ImmutableMap.of(1, roleName));
         return pgRoleResult.size() > 0;
     }
 
     private boolean checkRoleIsDatabaseOwner(String roleName, String databaseName) throws Exception {
-        Map<String, String> pgRoleIsDatabaseOwnerResult = PostgreSQLDatabase.executePreparedSelect("SELECT d.datname as name, pg_catalog.pg_get_userbyid(d.datdba) as owner FROM pg_catalog.pg_database d WHERE d.datname = ?", ImmutableMap.of(1, databaseName));
+        Map<String, String> pgRoleIsDatabaseOwnerResult = postgreSQLDatabase.executePreparedSelect("SELECT d.datname as name, " +
+                "pg_catalog.pg_get_userbyid(d.datdba) as owner FROM pg_catalog.pg_database d WHERE d.datname = ?", ImmutableMap.of(1, databaseName));
         String owner = pgRoleIsDatabaseOwnerResult.get("owner");
         return (owner != null) ? owner.equals(roleName) : false;
     }
